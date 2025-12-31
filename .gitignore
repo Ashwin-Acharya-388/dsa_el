@@ -1,0 +1,15 @@
+# Executables
+backend
+server
+
+# Object files
+*.o
+*.obj
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/

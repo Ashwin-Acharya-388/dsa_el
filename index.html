@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Tree Nearest Neighbor Search - Entertainment Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #6c63ff;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #a5a3ff;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-top: 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .connected {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .disconnected {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel h2 {
+            color: #6c63ff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(108, 99, 255, 0.3);
+        }
+
+        #mapContainer {
+            height: 500px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        #mapCanvas {
+            background: #1e3a5f;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a5a3ff;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 1rem;
+        }
+
+        button {
+            background: linear-gradient(90deg, #6c63ff, #4a44c8);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #4a44c8, #6c63ff);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #searchResults {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            min-height: 100px;
+        }
+
+        .venue-item {
+            background: rgba(108, 99, 255, 0.1);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #6c63ff;
+        }
+
+        .venue-item.nearest {
+            background: rgba(76, 175, 80, 0.2);
+            border-left-color: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .performance-stats {
+            background: rgba(255, 152, 118, 0.1);
+            border-left-color: #ff9a76;
+            margin-top: 15px;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        .tree-visualization {
+            height: 400px;
+            overflow: auto;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .explanation {
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .explanation p {
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border-left: 4px solid #6c63ff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #a5a3ff;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .complexity {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            gap: 15px;
+        }
+
+        .complexity-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .complexity-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #6c63ff;
+            margin-top: 5px;
+        }
+
+        .backend-info {
+            background: rgba(167, 139, 250, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #a78bfa;
+        }
+
+        .tab-container {
+            margin-top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid rgba(108, 99, 255, 0.3);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #a5a3ff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #6c63ff;
+            border-bottom: 3px solid #6c63ff;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            padding: 20px 0;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>2D Tree Nearest Neighbor Search - Entertainment Guide</h1>
+            <p class="subtitle">A college project demonstrating K-D Tree data structure with C backend for efficient
+                nearest neighbor search of entertainment venues on a map. Click anywhere on the map to find the nearest
+                entertainment venue!</p>
+            <div id="connectionStatus" class="connection-status disconnected">
+                ⚡ C Backend: Disconnected (Using JavaScript Fallback)
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="panel">
+                <h2>Entertainment Map</h2>
+                <div id="mapContainer">
+                    <canvas id="mapCanvas" width="800" height="500"></canvas>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="venueType">Venue Type</label>
+                        <select id="venueType">
+                            <option value="all">All Venues</option>
+                            <option value="cinema">Cinema</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="park">Park</option>
+                            <option value="mall">Shopping Mall</option>
+                            <option value="theater">Theater</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="searchMode">Search Algorithm</label>
+                        <select id="searchMode">
+                            <option value="kdtree">K-D Tree (Optimized)</option>
+                            <option value="bruteforce">Brute Force (Comparison)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="backendMode">Backend Mode</label>
+                        <select id="backendMode">
+                            <option value="auto">Auto (Try C Backend First)</option>
+                            <option value="c">C Backend Only</option>
+                            <option value="js">JavaScript Only</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <button id="resetBtn">Reset Map & Tree</button>
+                        <button id="demoBtn">Run Demo Search</button>
+                        <button id="testBackendBtn">Test C Backend Connection</button>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ff6b6b;"></div>
+                        <span>Cinema</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4ecdc4;"></div>
+                        <span>Restaurant</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ffe66d;"></div>
+                        <span>Park</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ff9a76;"></div>
+                        <span>Shopping Mall</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #a78bfa;"></div>
+                        <span>Theater</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ffffff;"></div>
+                        <span>Your Location</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4CAF50;"></div>
+                        <span>Nearest Venue</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="tab-container">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('results')">Search Results</button>
+                        <button class="tab" onclick="switchTab('tree')">K-D Tree Visualization</button>
+                        <button class="tab" onclick="switchTab('code')">C Code Snippets</button>
+                    </div>
+
+                    <div id="resultsTab" class="tab-content active">
+                        <h2>Nearest Venue Search Results</h2>
+                        <div id="searchResults">
+                            <p>Click on the map to find the nearest entertainment venue. The results will appear here.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="treeTab" class="tab-content">
+                        <h2>K-D Tree Visualization</h2>
+                        <div class="tree-visualization" id="treeVisualization">
+                            Tree visualization will appear here after initialization.
+                        </div>
+                    </div>
+
+                    <div id="codeTab" class="tab-content">
+                        <h2>C Backend Code Snippets</h2>
+                        <div class="code-block">
+                            // K-D Tree Node Structure in C
+                            typedef struct KDNode {
+                            Venue venue;
+                            int depth;
+                            struct KDNode *left;
+                            struct KDNode *right;
+                            } KDNode;
+
+                            // Nearest Neighbor Search Algorithm
+                            void nearest_search(KDNode *node, float x, float y, int depth,
+                            KDNode **best, float *best_dist, char *type, int *search_count) {
+                            if (node == NULL) return;
+
+                            (*search_count)++;
+
+                            float dist = calculate_distance(x, y, node->venue.x, node->venue.y);
+
+                            if (dist < *best_dist) { *best=node; *best_dist=dist; } int axis=depth % 2; float
+                                point_coord=(axis==0) ? x : y; float node_coord=(axis==0) ? node->venue.x :
+                                node->venue.y;
+
+                                // Pruning: Only search subtrees that could contain closer points
+                                if (point_coord < node_coord) { nearest_search(node->left, x, y, depth + 1, best,
+                                    best_dist, type, search_count);
+                                    if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->right, x, y,
+                                        depth + 1, best, best_dist, type, search_count);
+                                        }
+                                        } else {
+                                        nearest_search(node->right, x, y, depth + 1, best, best_dist, type,
+                                        search_count);
+                                        if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->left, x,
+                                            y, depth + 1, best, best_dist, type, search_count);
+                                            }
+                                            }
+                                            }
+                        </div>
+                        <p>The C backend implements the K-D Tree with O(log n) search complexity and handles HTTP
+                            requests via a custom server.</p>
+                    </div>
+                </div>
+
+                <div class="complexity">
+                    <div class="complexity-item">
+                        <div>K-D Tree Search Complexity</div>
+                        <div class="complexity-value">O(log n)</div>
+                        <small>Average case</small>
+                    </div>
+                    <div class="complexity-item">
+                        <div>Brute Force Search Complexity</div>
+                        <div class="complexity-value">O(n)</div>
+                        <small>Always</small>
+                    </div>
+                    <div class="complexity-item">
+                        <div>Space Complexity</div>
+                        <div class="complexity-value">O(n)</div>
+                        <small>For tree storage</small>
+                    </div>
+                </div>
+
+                <div class="backend-info">
+                    <h3>C Backend Information</h3>
+                    <p><strong>Status:</strong> <span id="backendStatus">Not connected</span></p>
+                    <p><strong>URL:</strong> <code>http://localhost:8080</code></p>
+                    <p><strong>API Endpoints:</strong> <code>/api/nearest</code>, <code>/api/venues</code>,
+                        <code>/api/tree</code></p>
+                    <p>To run the C backend, compile and execute the server.c file from the backend directory.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Project Explanation</h2>
+            <div class="explanation">
+                <p>This college project demonstrates a <strong>2D Tree (K-D Tree)</strong> data structure implemented in
+                    <strong>C</strong> with a JavaScript frontend. The system efficiently finds the nearest
+                    entertainment venue from any point on the map.</p>
+
+                <p><strong>Architecture:</strong></p>
+                <ul style="padding-left: 20px; margin-bottom: 15px;">
+                    <li><strong>Frontend (JavaScript):</strong> Interactive map visualization and user interface</li>
+                    <li><strong>Backend (C):</strong> K-D Tree implementation with HTTP server</li>
+                    <li><strong>Communication:</strong> REST API between frontend and backend</li>
+                    <li><strong>Fallback:</strong> JavaScript implementation if C backend is unavailable</li>
+                </ul>
+
+                <p><strong>How K-D Tree Works:</strong></p>
+                <ol style="padding-left: 20px; margin-bottom: 15px;">
+                    <li>Points are inserted into the tree by alternating between x and y dimensions</li>
+                    <li>Each node splits the space into two halves</li>
+                    <li>Search prunes branches that cannot contain closer points</li>
+                    <li>Complexity reduces from O(n) to O(log n) on average</li>
+                </ol>
+
+                <p><strong>College Project Value:</strong></p>
+                <ul style="padding-left: 20px;">
+                    <li>Demonstrates data structures (K-D Trees)</li>
+                    <li>Shows algorithm optimization (nearest neighbor search)</li>
+                    <li>Illustrates system architecture (client-server model)</li>
+                    <li>Combines multiple languages (C, JavaScript, HTML/CSS)</li>
+                    <li>Practical application (location-based services)</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>College Project - Data Structures & Algorithms | 2D Tree Nearest Neighbor Search</p>
+            <p>Frontend: HTML/CSS/JavaScript | Backend: C | Architecture: Client-Server with REST API</p>
+            <p>Click on the map to find the nearest entertainment venue and see the K-D Tree in action!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab switching function
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab').forEach(tabBtn => {
+                tabBtn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // Activate clicked tab button
+            event.target.classList.add('active');
+        }
+
+        // Entertainment venues data with coordinates and types
+        const venues = [
+            { id: 1, name: "Cineplex City", type: "cinema", x: 150, y: 120, color: "#ff6b6b" },
+            { id: 2, name: "Foodie Paradise", type: "restaurant", x: 300, y: 80, color: "#4ecdc4" },
+            { id: 3, name: "Central Park", type: "park", x: 500, y: 200, color: "#ffe66d" },
+            { id: 4, name: "Mega Mall", type: "mall", x: 250, y: 300, color: "#ff9a76" },
+            { id: 5, name: "Grand Theater", type: "theater", x: 600, y: 350, color: "#a78bfa" },
+            { id: 6, name: "Starlight Cinema", type: "cinema", x: 700, y: 150, color: "#ff6b6b" },
+            { id: 7, name: "Gourmet Corner", type: "restaurant", x: 100, y: 400, color: "#4ecdc4" },
+            { id: 8, name: "Riverside Park", type: "park", x: 400, y: 450, color: "#ffe66d" },
+            { id: 9, name: "Plaza Mall", type: "mall", x: 650, y: 250, color: "#ff9a76" },
+            { id: 10, name: "Drama House", type: "theater", x: 200, y: 200, color: "#a78bfa" },
+            { id: 11, name: "Cinema Royale", type: "cinema", x: 350, y: 150, color: "#ff6b6b" },
+            { id: 12, name: "Italian Bistro", type: "restaurant", x: 550, y: 100, color: "#4ecdc4" },
+            { id: 13, name: "Botanical Gardens", type: "park", x: 150, y: 250, color: "#ffe66d" },
+            { id: 14, name: "Fashion Mall", type: "mall", x: 450, y: 350, color: "#ff9a76" },
+            { id: 15, name: "Opera Hall", type: "theater", x: 750, y: 400, color: "#a78bfa" }
+        ];
+
+        // K-D Tree Node class (JavaScript fallback)
+        class KDNode {
+            constructor(venue, depth = 0) {
+                this.venue = venue;
+                this.depth = depth;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        // K-D Tree class (JavaScript fallback)
+        class KDTree {
+            constructor(venues) {
+                this.root = this.buildTree(venues, 0);
+                this.searchCount = 0;
+                this.buildCount = 0;
+            }
+
+            buildTree(venues, depth) {
+                if (venues.length === 0) return null;
+
+                this.buildCount++;
+                const axis = depth % 2;
+
+                venues.sort((a, b) => {
+                    const coordA = axis === 0 ? a.x : a.y;
+                    const coordB = axis === 0 ? b.x : b.y;
+                    return coordA - coordB;
+                });
+
+                const medianIndex = Math.floor(venues.length / 2);
+                const medianVenue = venues[medianIndex];
+
+                const node = new KDNode(medianVenue, depth);
+
+                node.left = this.buildTree(venues.slice(0, medianIndex), depth + 1);
+                node.right = this.buildTree(venues.slice(medianIndex + 1), depth + 1);
+
+                return node;
+            }
+
+            findNearestNeighbor(point, type = "all") {
+                this.searchCount = 0;
+                let best = { node: null, distance: Infinity };
+                this.nearestSearch(this.root, point, 0, best, type);
+                return { venue: best.node ? best.node.venue : null, searches: this.searchCount };
+            }
+
+            nearestSearch(node, point, depth, best, type) {
+                if (node === null) return;
+
+                this.searchCount++;
+
+                const typeMatches = type === "all" || node.venue.type === type;
+
+                const dx = node.venue.x - point.x;
+                const dy = node.venue.y - point.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < best.distance && typeMatches) {
+                    best.node = node;
+                    best.distance = distance;
+                }
+
+                const axis = depth % 2;
+                const pointCoord = axis === 0 ? point.x : point.y;
+                const nodeCoord = axis === 0 ? node.venue.x : node.venue.y;
+
+                let nearerSubtree, fartherSubtree;
+                if (pointCoord < nodeCoord) {
+                    nearerSubtree = node.left;
+                    fartherSubtree = node.right;
+                } else {
+                    nearerSubtree = node.right;
+                    fartherSubtree = node.left;
+                }
+
+                this.nearestSearch(nearerSubtree, point, depth + 1, best, type);
+
+                const planeDistance = Math.abs(pointCoord - nodeCoord);
+                if (planeDistance < best.distance) {
+                    this.nearestSearch(fartherSubtree, point, depth + 1, best, type);
+                }
+            }
+
+            getTreeVisualization() {
+                return this.visualizeTree(this.root, "", true);
+            }
+
+            visualizeTree(node, prefix, isTail) {
+                if (node === null) return "";
+
+                let result = prefix + (isTail ? "└── " : "├── ") +
+                    `${node.venue.name} (${node.venue.type[0].toUpperCase()}) ` +
+                    `[${node.venue.x}, ${node.venue.y}] depth:${node.depth}\n`;
+
+                const children = [];
+                if (node.left) children.push(node.left);
+                if (node.right) children.push(node.right);
+
+                for (let i = 0; i < children.length; i++) {
+                    const child = children[i];
+                    const childPrefix = prefix + (isTail ? "    " : "│   ");
+                    const childIsTail = i === children.length - 1;
+                    result += this.visualizeTree(child, childPrefix, childIsTail);
+                }
+
+                return result;
+            }
+        }
+
+        // Brute force nearest neighbor search for comparison
+        function bruteForceNearestNeighbor(point, venues, type = "all") {
+            let best = null;
+            let bestDistance = Infinity;
+            let searches = 0;
+
+            for (const venue of venues) {
+                searches++;
+                if (type !== "all" && venue.type !== type) continue;
+
+                const dx = venue.x - point.x;
+                const dy = venue.y - point.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = venue;
+                }
+            }
+
+            return { venue: best, searches };
+        }
+
+        // DOM elements
+        const mapCanvas = document.getElementById('mapCanvas');
+        const ctx = mapCanvas.getContext('2d');
+        const searchResults = document.getElementById('searchResults');
+        const treeVisualization = document.getElementById('treeVisualization');
+        const venueTypeSelect = document.getElementById('venueType');
+        const searchModeSelect = document.getElementById('searchMode');
+        const backendModeSelect = document.getElementById('backendMode');
+        const resetBtn = document.getElementById('resetBtn');
+        const demoBtn = document.getElementById('demoBtn');
+        const testBackendBtn = document.getElementById('testBackendBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const backendStatus = document.getElementById('backendStatus');
+
+        // Global variables
+        let kdTree = new KDTree(venues);
+        let userPoint = null;
+        let nearestVenue = null;
+        let cBackendAvailable = false;
+        const API_BASE_URL = 'http://localhost:8080';
+
+        // Test C backend connection
+        async function testBackendConnection() {
+            connectionStatus.textContent = "🔌 Testing C backend connection...";
+            connectionStatus.className = "connection-status disconnected";
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/venues`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    cBackendAvailable = true;
+                    connectionStatus.textContent = "✅ C Backend: Connected and Ready";
+                    connectionStatus.className = "connection-status connected";
+                    backendStatus.textContent = "Connected and operational";
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                cBackendAvailable = false;
+                connectionStatus.textContent = "⚡ C Backend: Disconnected (Using JavaScript Fallback)";
+                connectionStatus.className = "connection-status disconnected";
+                backendStatus.textContent = "Not connected - using JavaScript implementation";
+                console.log("C backend not available, using JavaScript implementation:", error.message);
+                return false;
+            }
+        }
+
+        // Search for nearest venue using C backend or JavaScript fallback
+        async function searchNearestVenue(x, y, type, algorithm) {
+            const backendMode = backendModeSelect.value;
+            const useCBackend = (backendMode === 'c' || backendMode === 'auto') && cBackendAvailable;
+
+            if (useCBackend) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/nearest?x=${x}&y=${y}&type=${type}&algorithm=${algorithm}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        mode: 'cors'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        data.backend = 'c';
+                        return data;
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    console.warn("C backend request failed, falling back to JavaScript:", error);
+                    // Fall through to JavaScript implementation
+                }
+            }
+
+            // JavaScript implementation
+            let result, searches;
+
+            if (algorithm === 'kdtree') {
+                result = kdTree.findNearestNeighbor({ x, y }, type);
+                searches = result.searches;
+                result = result.venue;
+            } else {
+                result = bruteForceNearestNeighbor({ x, y }, venues, type);
+                searches = result.searches;
+                result = result.venue;
+            }
+
+            return {
+                success: true,
+                result: result,
+                searches: searches,
+                complexity: algorithm === 'kdtree' ? 'O(log n)' : 'O(n)',
+                backend: 'javascript'
+            };
+        }
+
+        // Update search results display
+        function updateSearchResults(point, data, algorithm, type) {
+            if (!data.success || !data.result) {
+                searchResults.innerHTML = `<p>No ${type !== 'all' ? type : ''} venue found near the selected location.</p>`;
+                return;
+            }
+
+            const venue = data.result;
+            const searches = data.searches;
+            const backendUsed = data.backend || 'javascript';
+
+            const distance = Math.sqrt(
+                Math.pow(venue.x - point.x, 2) + Math.pow(venue.y - point.y, 2)
+            ).toFixed(1);
+
+            searchResults.innerHTML = `
+                <div class="venue-item nearest">
+                    <h3>🎯 Nearest ${type !== 'all' ? type : 'Entertainment'} Venue:</h3>
+                    <p><strong>${venue.name}</strong> (${venue.type})</p>
+                    <p>📍 Distance: ${distance} units</p>
+                    <p>📐 Coordinates: (${venue.x}, ${venue.y})</p>
+                    <p>⚙️ Algorithm: ${algorithm === 'kdtree' ? 'K-D Tree Search' : 'Brute Force'}</p>
+                    <p>🔍 Search operations: ${searches}</p>
+                    <p>💻 Backend: ${backendUsed === 'c' ? 'C (Compiled)' : 'JavaScript'}</p>
+                </div>
+                <div class="venue-item performance-stats">
+                    <h4>Performance Statistics:</h4>
+                    <p>Time Complexity: ${data.complexity || (algorithm === 'kdtree' ? 'O(log n)' : 'O(n)')}</p>
+                    <p>Total Venues: ${venues.length}</p>
+                    <p>Efficiency: ${Math.round(venues.length / searches * 100) / 100}x faster than checking all venues</p>
+                </div>
+                <p style="margin-top: 15px;">Other nearby venues:</p>
+            `;
+
+            // Show other venues sorted by distance
+            const otherVenues = venues
+                .filter(v => v.id !== venue.id && (type === 'all' || v.type === type))
+                .map(v => {
+                    const dist = Math.sqrt(
+                        Math.pow(v.x - point.x, 2) + Math.pow(v.y - point.y, 2)
+                    );
+                    return { ...v, distance: dist };
+                })
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, 5);
+
+            otherVenues.forEach(v => {
+                const venueElement = document.createElement('div');
+                venueElement.className = 'venue-item';
+                venueElement.innerHTML = `
+                    <p><strong>${v.name}</strong> (${v.type})</p>
+                    <p>Distance: ${v.distance.toFixed(1)} units</p>
+                    <p>Coordinates: (${v.x}, ${v.y})</p>
+                `;
+                searchResults.appendChild(venueElement);
+            });
+        }
+
+        // Draw the map with venues
+        function drawMap() {
+            // Clear canvas
+            ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+
+            // Vertical grid lines
+            for (let x = 0; x <= mapCanvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, mapCanvas.height);
+                ctx.stroke();
+            }
+
+            // Horizontal grid lines
+            for (let y = 0; y <= mapCanvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(mapCanvas.width, y);
+                ctx.stroke();
+            }
+
+            // Draw axis labels
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+
+            for (let x = 0; x <= mapCanvas.width; x += 100) {
+                ctx.fillText(x.toString(), x, mapCanvas.height - 5);
+            }
+
+            for (let y = 0; y <= mapCanvas.height; y += 100) {
+                ctx.fillText(y.toString(), 15, y);
+            }
+
+            // Draw venues
+            venues.forEach(venue => {
+                // Draw venue circle
+                ctx.fillStyle = venue.color;
+                ctx.beginPath();
+                ctx.arc(venue.x, venue.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw venue name
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(venue.name, venue.x, venue.y - 15);
+
+                // Draw venue type
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.font = '10px Arial';
+                ctx.fillText(venue.type, venue.x, venue.y + 20);
+            });
+
+            // Draw user point if exists
+            if (userPoint) {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(userPoint.x, userPoint.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw pulsating circle for user point
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(userPoint.x, userPoint.y, 15, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Label user point
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`You (${Math.round(userPoint.x)}, ${Math.round(userPoint.y)})`, userPoint.x, userPoint.y - 30);
+            }
+
+            // Draw line to nearest venue if exists
+            if (userPoint && nearestVenue) {
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(userPoint.x, userPoint.y);
+                ctx.lineTo(nearestVenue.x, nearestVenue.y);
+                ctx.stroke();
+
+                // Highlight nearest venue with a larger circle
+                ctx.fillStyle = '#4CAF50';
+                ctx.beginPath();
+                ctx.arc(nearestVenue.x, nearestVenue.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw distance text
+                const midX = (userPoint.x + nearestVenue.x) / 2;
+                const midY = (userPoint.y + nearestVenue.y) / 2;
+                const distance = Math.sqrt(
+                    Math.pow(nearestVenue.x - userPoint.x, 2) +
+                    Math.pow(nearestVenue.y - userPoint.y, 2)
+                ).toFixed(1);
+
+                ctx.fillStyle = '#4CAF50';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${distance} units`, midX, midY - 10);
+            }
+        }
+
+        // Handle map click
+        async function handleMapClick(event) {
+            const rect = mapCanvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            userPoint = { x, y };
+            const type = venueTypeSelect.value;
+            const algorithm = searchModeSelect.value;
+
+            // Disable buttons during search
+            demoBtn.disabled = true;
+            demoBtn.textContent = "Searching...";
+
+            try {
+                // Search for nearest venue
+                const data = await searchNearestVenue(x, y, type, algorithm);
+
+                if (data.success) {
+                    nearestVenue = data.result;
+                    updateSearchResults(userPoint, data, algorithm, type);
+
+                    if (algorithm === 'kdtree') {
+                        treeVisualization.textContent = kdTree.getTreeVisualization();
+                    }
+                }
+
+                drawMap();
+            } catch (error) {
+                console.error("Search failed:", error);
+                searchResults.innerHTML = `<p>Error searching for venues: ${error.message}</p>`;
+            } finally {
+                // Re-enable buttons
+                demoBtn.disabled = false;
+                demoBtn.textContent = "Run Demo Search";
+            }
+        }
+
+        // Event Listeners
+        mapCanvas.addEventListener('click', handleMapClick);
+
+        resetBtn.addEventListener('click', () => {
+            userPoint = null;
+            nearestVenue = null;
+            kdTree = new KDTree(venues);
+            treeVisualization.textContent = kdTree.getTreeVisualization();
+            searchResults.innerHTML = '<p>Click on the map to find the nearest entertainment venue. The results will appear here.</p>';
+            drawMap();
+        });
+
+        demoBtn.addEventListener('click', async () => {
+            // Select a semi-random point that's likely to have interesting results
+            const x = Math.floor(Math.random() * (mapCanvas.width - 200)) + 100;
+            const y = Math.floor(Math.random() * (mapCanvas.height - 200)) + 100;
+
+            userPoint = { x, y };
+            const type = venueTypeSelect.value;
+            const algorithm = searchModeSelect.value;
+
+            demoBtn.disabled = true;
+            demoBtn.textContent = "Searching...";
+
+            try {
+                const data = await searchNearestVenue(x, y, type, algorithm);
+
+                if (data.success) {
+                    nearestVenue = data.result;
+                    updateSearchResults(userPoint, data, algorithm, type);
+
+                    if (algorithm === 'kdtree') {
+                        treeVisualization.textContent = kdTree.getTreeVisualization();
+                    }
+                }
+
+                drawMap();
+            } catch (error) {
+                console.error("Demo search failed:", error);
+                searchResults.innerHTML = `<p>Error during demo search: ${error.message}</p>`;
+            } finally {
+                demoBtn.disabled = false;
+                demoBtn.textContent = "Run Demo Search";
+            }
+        });
+
+        testBackendBtn.addEventListener('click', async () => {
+            testBackendBtn.disabled = true;
+            testBackendBtn.textContent = "Testing...";
+
+            await testBackendConnection();
+
+            testBackendBtn.disabled = false;
+            testBackendBtn.textContent = "Test C Backend Connection";
+        });
+
+        // Initialize
+        async function initialize() {
+            // Test backend connection on startup
+            await testBackendConnection();
+
+            // Draw initial map
+            drawMap();
+
+            // Initialize tree visualization
+            treeVisualization.textContent = kdTree.getTreeVisualization();
+
+            console.log("2D Tree Nearest Neighbor Search initialized");
+            console.log(`Total venues: ${venues.length}`);
+            console.log(`K-D Tree built with ${kdTree.buildCount} operations`);
+        }
+
+        // Start the application
+        initialize();
+    </script>
+</body>
+
+</html>
