@@ -351,8 +351,7 @@
 
                     <div class="control-group">
                         <button id="resetBtn">Reset Map & Tree</button>
-                        <button id="demoBtn">Run Demo Search</button>
-                        <button id="testBackendBtn">Test C Backend Connection</button>
+
                     </div>
                 </div>
 
@@ -438,8 +437,7 @@
         const searchResults = document.getElementById('searchResults');
         const venueTypeSelect = document.getElementById('venueType');
         const resetBtn = document.getElementById('resetBtn');
-        const demoBtn = document.getElementById('demoBtn');
-        const testBackendBtn = document.getElementById('testBackendBtn');
+
         const connectionStatus = document.getElementById('connectionStatus');
 
         // Global variables
@@ -657,9 +655,7 @@
             const type = venueTypeSelect.value;
             // algorithm hardcoded to kdtree
 
-            // Disable buttons during search
-            demoBtn.disabled = true;
-            demoBtn.textContent = "Searching...";
+
 
             try {
                 // Search for nearest venue
@@ -675,9 +671,7 @@
                 console.error("Search failed:", error);
                 searchResults.innerHTML = `<p>Error searching for venues: ${error.message}</p>`;
             } finally {
-                // Re-enable buttons
-                demoBtn.disabled = false;
-                demoBtn.textContent = "Run Demo Search";
+                // Search complete
             }
         }
 
@@ -692,44 +686,7 @@
             drawMap();
         });
 
-        demoBtn.addEventListener('click', async () => {
-            // Select a semi-random point that's likely to have interesting results
-            const x = Math.floor(Math.random() * (mapCanvas.width - 200)) + 100;
-            const y = Math.floor(Math.random() * (mapCanvas.height - 200)) + 100;
 
-            userPoint = { x, y };
-            const type = venueTypeSelect.value;
-
-            demoBtn.disabled = true;
-            demoBtn.textContent = "Searching...";
-
-            try {
-                const data = await searchNearestVenue(x, y, type);
-
-                if (data.success) {
-                    nearestVenue = data.result;
-                    updateSearchResults(userPoint, data, 'kdtree', type);
-                }
-
-                drawMap();
-            } catch (error) {
-                console.error("Demo search failed:", error);
-                searchResults.innerHTML = `<p>Error during demo search: ${error.message}</p>`;
-            } finally {
-                demoBtn.disabled = false;
-                demoBtn.textContent = "Run Demo Search";
-            }
-        });
-
-        testBackendBtn.addEventListener('click', async () => {
-            testBackendBtn.disabled = true;
-            testBackendBtn.textContent = "Testing...";
-
-            await testBackendConnection();
-
-            testBackendBtn.disabled = false;
-            testBackendBtn.textContent = "Test C Backend Connection";
-        });
 
         // Initialize
         async function initialize() {
