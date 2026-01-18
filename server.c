@@ -28,6 +28,43 @@ void send_json_response(int client_socket, const char *json) {
     send(client_socket, response, strlen(response), 0);
 }
 
+// Serve static file
+void send_file_response(int client_socket, const char *filepath, const char *content_type) {
+    FILE *file = fopen(filepath, "r");
+    if (!file) {
+        char response[] = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found";
+        send(client_socket, response, strlen(response), 0);
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char *file_content = malloc(file_size + 1);
+    if (!file_content) {
+        fclose(file);
+        return;
+    }
+    
+    fread(file_content, 1, file_size, file);
+    fclose(file);
+    file_content[file_size] = '\0';
+
+    char header[1024];
+    snprintf(header, sizeof(header),
+             "HTTP/1.1 200 OK\r\n"
+             "Content-Type: %s\r\n"
+             "Content-Length: %ld\r\n"
+             "\r\n",
+             content_type, file_size);
+    
+    send(client_socket, header, strlen(header), 0);
+    send(client_socket, file_content, file_size, 0);
+    
+    free(file_content);
+}
+
 // Helper to URL decode (simple version)
 void url_decode(char *dst, const char *src) {
     char a, b;
@@ -53,7 +90,10 @@ void url_decode(char *dst, const char *src) {
 // Process API requests
 void handle_request(int client_socket, const char *request) {
     // Simple routing
-    if (strstr(request, "GET /api/nearest")) {
+    if (strstr(request, "GET / ") || strstr(request, "GET /index.html ")) {
+        send_file_response(client_socket, "index.html", "text/html");
+    }
+    else if (strstr(request, "GET /api/nearest")) {
         // Parse query parameters
         // Example: GET /api/nearest?x=150&y=200&type=all&algorithm=kdtree HTTP/1.1
         
