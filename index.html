@@ -60,7 +60,7 @@
             margin-bottom: 30px;
         }
 
-        .bottom-content{
+        .bottom-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
@@ -146,7 +146,8 @@
             opacity: 0.85;
         }
 
-        input, select {
+        input,
+        select {
             font-size: 0.95rem;
         }
 
@@ -454,24 +455,24 @@
                     <h2>Venue Management</h2>
                     <div class="controls">
                         <div class="control-group">
-                        <label for="newVenueName">Venue Name</label>
-                        <input type="text" id="newVenueName" placeholder="Enter venue name">
+                            <label for="newVenueName">Venue Name</label>
+                            <input type="text" id="newVenueName" placeholder="Enter venue name">
                         </div>
 
                         <div class="control-group">
-                        <label for="newVenueType">Venue Type</label>
-                        <select id="newVenueType">
-                            <option value="cinema">Cinema</option>
-                            <option value="restaurant">Restaurant</option>
-                            <option value="park">Park</option>
-                            <option value="mall">Shopping Mall</option>
-                            <option value="theater">Theater</option>
-                        </select>
+                            <label for="newVenueType">Venue Type</label>
+                            <select id="newVenueType">
+                                <option value="cinema">Cinema</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="park">Park</option>
+                                <option value="mall">Shopping Mall</option>
+                                <option value="theater">Theater</option>
+                            </select>
                         </div>
 
                         <div class="control-group">
-                        <button onclick="enableAddMode()">➕ Add Venue (Click on Map)</button>
-                        <button onclick="deleteNearestVenue()">❌ Delete Nearest Venue</button>
+                            <button onclick="enableAddMode()">➕ Add Venue (Click on Map)</button>
+                            <button onclick="deleteNearestVenue()">❌ Delete Nearest Venue</button>
                         </div>
                     </div>
 
@@ -485,13 +486,13 @@
                         <div class="tabs">
                             <button class="tab active" onclick="switchTab('results')">Search Results</button>
                             <button class="tab" onclick="switchTab('tree')">K-D Tree Visualization</button>
-                            <button class="tab" onclick="switchTab('code')">C Code Snippets</button>
                         </div>
 
                         <div id="resultsTab" class="tab-content active">
                             <h2>Nearest Venue Search Results</h2>
                             <div id="searchResults">
-                                <p>Click on the map to find the nearest entertainment venue. The results will appear here.
+                                <p>Click on the map to find the nearest entertainment venue. The results will appear
+                                    here.
                                 </p>
                             </div>
                         </div>
@@ -503,88 +504,16 @@
                             </div>
                         </div>
 
-                        <div id="codeTab" class="tab-content">
-                            <h2>C Backend Code Snippets</h2>
-                            <div class="code-block">
-                                // K-D Tree Node Structure in C
-                                typedef struct KDNode {
-                                Venue venue;
-                                int depth;
-                                struct KDNode *left;
-                                struct KDNode *right;
-                                } KDNode;
 
-                                // Nearest Neighbor Search Algorithm
-                                void nearest_search(KDNode *node, float x, float y, int depth,
-                                KDNode **best, float *best_dist, char *type, int *search_count) {
-                                if (node == NULL) return;
-
-                                (*search_count)++;
-
-                                float dist = calculate_distance(x, y, node->venue.x, node->venue.y);
-
-                                if (dist < *best_dist) { *best=node; *best_dist=dist; } int axis=depth % 2; float
-                                    point_coord=(axis==0) ? x : y; float node_coord=(axis==0) ? node->venue.x :
-                                    node->venue.y;
-
-                                    // Pruning: Only search subtrees that could contain closer points
-                                    if (point_coord < node_coord) { nearest_search(node->left, x, y, depth + 1, best,
-                                        best_dist, type, search_count);
-                                        if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->right, x, y,
-                                            depth + 1, best, best_dist, type, search_count);
-                                            }
-                                            } else {
-                                            nearest_search(node->right, x, y, depth + 1, best, best_dist, type,
-                                            search_count);
-                                            if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->left, x,
-                                                y, depth + 1, best, best_dist, type, search_count);
-                                                }
-                                                }
-                                                }
-                            </div>
-                            <p>The C backend implements the K-D Tree with O(log n) search complexity and handles HTTP
-                                requests via a custom server.</p>
-                        </div>
                     </div>
 
-                    <div class="complexity">
-                        <div class="complexity-item">
-                            <div>K-D Tree Search Complexity</div>
-                            <div class="complexity-value">O(log n)</div>
-                            <small>Average case</small>
-                        </div>
-                        <div class="complexity-item">
-                            <div>Brute Force Search Complexity</div>
-                            <div class="complexity-value">O(n)</div>
-                            <small>Always</small>
-                        </div>
-                        <div class="complexity-item">
-                            <div>Space Complexity</div>
-                            <div class="complexity-value">O(n)</div>
-                            <small>For tree storage</small>
-                        </div>
-                    </div>
 
-                    <div class="backend-info">
-                        <h3>C Backend Information</h3>
-                        <p><strong>Status:</strong> <span id="backendStatus">Not connected</span></p>
-                        <p><strong>URL:</strong> <code>http://localhost:8080</code></p>
-                        <p><strong>API Endpoints:</strong> <code>/api/nearest</code>, <code>/api/venues</code>,
-                            <code>/api/tree</code>
-                        </p>
-                        <p>To run the C backend, compile and execute the server.c file from the backend directory.</p>
-                    </div>
 
-            <div class="panel">
-                <div id="searchResults">
-                    <p style="color: #94a3b8;">Select a location on the map to view details.</p>
+
 
                 </div>
             </div>
-
         </div>
-    </div>
-    </div>
 
 
     </div>
@@ -595,8 +524,49 @@
 
     <script>
         // Tab switching function (No longer needed, but kept empty/stubbed if any refs remain, though none should)
+        // Tab switching function
         function switchTab(tabName) {
-            // Deprecated
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName + 'Tab');
+            if (selectedTab) selectedTab.classList.add('active');
+
+            // Highlight button
+            const buttons = document.querySelectorAll('.tab');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tabName === 'results' ? 'search' : 'tree')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (tabName === 'tree') {
+                loadTreeVisualization();
+            }
+        }
+
+        async function loadTreeVisualization() {
+            const treeVis = document.getElementById('treeVisualization');
+            treeVis.textContent = "Loading tree structure...";
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/tree`);
+                if (response.ok) {
+                    const text = await response.text();
+                    treeVis.textContent = text;
+                } else {
+                    treeVis.textContent = "Error loading tree visualization.";
+                }
+            } catch (e) {
+                console.error(e);
+                treeVis.textContent = "Could not connect to backend.";
+            }
         }
 
         // Entertainment venues data with coordinates and types
@@ -641,7 +611,7 @@
             addMode = true;
             alert("Click on the map to add a new venue");
         }
-        function addVenueAtPoint(x, y) {
+        async function addVenueAtPoint(x, y) {
             const name = document.getElementById("newVenueName").value.trim();
             const type = document.getElementById("newVenueType").value;
 
@@ -650,31 +620,54 @@
                 return;
             }
 
-            const colorMap = {
-                cinema: "#ff6b6b",
-                restaurant: "#4ecdc4",
-                park: "#ffe66d",
-                mall: "#ff9a76",
-                theater: "#a78bfa"
-            };
+            try {
+                // Construct URL with parameters
+                const url = `${API_BASE_URL}/api/add_venue?name=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}&x=${x}&y=${y}`;
 
-            const newVenue = {
-                id: Date.now(),
-                name,
-                type,
-                x,
-                y,
-                color: colorMap[type]
-            };
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        alert(`Venue "${name}" added successfully`);
 
-            venues.push(newVenue);
-            kdTree = new KDTree(venues);
+                        // Add to local venues for display purposes immediately (optional, or reload)
+                        // But better to reload venues because ID is generated by backend
+                        // For simplicity, we just add to local array with backend ID
+                        const colorMap = {
+                            cinema: "#ff6b6b",
+                            restaurant: "#4ecdc4",
+                            park: "#ffe66d",
+                            mall: "#ff9a76",
+                            theater: "#a78bfa"
+                        };
 
-            addMode = false;
-            drawMap();
-            treeVisualization.textContent = kdTree.getTreeVisualization();
+                        venues.push({
+                            id: data.id,
+                            name: name,
+                            type: type,
+                            x: x,
+                            y: y,
+                            color: colorMap[type] || "#ffffff"
+                        });
 
-            alert(`Venue "${name}" added successfully`);
+                        addMode = false;
+                        drawMap();
+
+                        // Also update tree visualization if tab is active
+                        const treeTab = document.getElementById('treeTab');
+                        if (treeTab.classList.contains('active')) {
+                            loadTreeVisualization();
+                        }
+                    } else {
+                        alert("Failed to add venue: " + data.message);
+                    }
+                } else {
+                    alert("Server error adding venue");
+                }
+            } catch (error) {
+                console.error("Error adding venue:", error);
+                alert("Could not connect to backend to add venue");
+            }
         }
         function deleteNearestVenue() {
             if (!userPoint || !nearestVenue) {
@@ -898,57 +891,30 @@
             const scaleY = mapCanvas.height / rect.height;
             const x = (event.clientX - rect.left) * scaleX;
             const y = (event.clientY - rect.top) * scaleY;
+
             if (addMode) {
                 addVenueAtPoint(x, y);
                 return;
             }
+
             userPoint = { x, y };
-            const type = venueTypeSelect.value;
-            const algorithm = searchModeSelect.value;
-            demoBtn.disabled = true;
-            demoBtn.textContent = "Searching...";
+            const type = venueTypeSelect ? venueTypeSelect.value : 'all';
+            const algorithm = 'kdtree';
+
             try {
                 const data = await searchNearestVenue(x, y, type, algorithm);
                 if (data.success) {
-                nearestVenue = data.result;
-                updateSearchResults(userPoint, data, algorithm, type);
-                if (algorithm === 'kdtree') {
-                    treeVisualization.textContent = kdTree.getTreeVisualization();
-                }
-
-            // Calculate scale factors (relationship between CSS pixels and Canvas internal resolution)
-            const scaleX = mapCanvas.width / rect.width;
-            const scaleY = mapCanvas.height / rect.height;
-
-            // Apply scaling to get correct internal canvas coordinates
-            const x = (event.clientX - rect.left) * scaleX;
-            const y = (event.clientY - rect.top) * scaleY;
-
-            userPoint = { x, y };
-            const type = venueTypeSelect.value;
-            // algorithm hardcoded to kdtree
-
-
-
-            try {
-                // Search for nearest venue
-                const data = await searchNearestVenue(x, y, type);
-
-                if (data.success) {
                     nearestVenue = data.result;
-                    updateSearchResults(userPoint, data, 'kdtree', type);
+                    updateSearchResults(userPoint, data, algorithm, type);
 
+                    const treeVis = document.getElementById('treeVisualization');
+                    if (treeVis) {
+                        treeVis.textContent = "Tree visualization available on backend console.";
+                    }
                 }
                 drawMap();
             } catch (error) {
-                console.error(error);
-            } finally {
-
-                demoBtn.disabled = false;
-                demoBtn.textContent = "Run Demo Search";
-
-                // Search complete
-
+                console.error("Search error:", error);
             }
         }
 
