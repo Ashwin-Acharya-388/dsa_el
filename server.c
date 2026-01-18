@@ -265,6 +265,61 @@ void handle_request(int client_socket, const char *request) {
             send_json_response(client_socket, json);
         }
     }
+    else if (strstr(request, "GET /api/delete_venue")) {
+        // Parse ID
+        int id = -1;
+        const char *query_start = strchr(request, '?');
+        if (query_start) {
+            char query[1024];
+            const char *query_end = strchr(query_start, ' ');
+            if (!query_end) query_end = query_start + strlen(query_start);
+            
+            int len = query_end - (query_start + 1);
+            if (len > 1023) len = 1023;
+            strncpy(query, query_start + 1, len);
+            query[len] = '\0';
+            
+            char *token = strtok(query, "&");
+            while (token != NULL) {
+                if (strncmp(token, "id=", 3) == 0) {
+                    id = atoi(token + 3);
+                }
+                token = strtok(NULL, "&");
+            }
+        }
+        
+        if (id != -1) {
+            int found = 0;
+            for (int i = 0; i < venue_count; i++) {
+                if (venues[i].id == id) {
+                    // Remove venue by shifting
+                    for (int j = i; j < venue_count - 1; j++) {
+                        venues[j] = venues[j + 1];
+                    }
+                    venue_count--;
+                    found = 1;
+                    break;
+                }
+            }
+            
+            if (found) {
+                // Rebuild K-D Tree
+                if (kd_tree) free_kdtree(kd_tree);
+                kd_tree = build_kdtree(venues, venue_count, 0);
+                
+                printf("Deleted venue ID: %d. Total: %d\n", id, venue_count);
+                
+                char json[] = "{\"success\": true, \"message\": \"Venue deleted\"}";
+                send_json_response(client_socket, json);
+            } else {
+                char json[] = "{\"success\": false, \"message\": \"Venue not found\"}";
+                send_json_response(client_socket, json);
+            }
+        } else {
+            char json[] = "{\"success\": false, \"message\": \"Invalid ID\"}";
+            send_json_response(client_socket, json);
+        }
+    }
     else if (strstr(request, "GET /api/tree")) {
         // Return tree visualization
         char *tree_buffer = malloc(65536); // 64KB buffer for tree string
