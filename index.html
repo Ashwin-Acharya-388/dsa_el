@@ -570,23 +570,8 @@
         }
 
         // Entertainment venues data with coordinates and types
-        const venues = [
-            { id: 1, name: "Cineplex City", type: "cinema", x: 150, y: 120, color: "#ff6b6b" },
-            { id: 2, name: "Foodie Paradise", type: "restaurant", x: 300, y: 80, color: "#4ecdc4" },
-            { id: 3, name: "Central Park", type: "park", x: 500, y: 200, color: "#ffe66d" },
-            { id: 4, name: "Mega Mall", type: "mall", x: 250, y: 300, color: "#ff9a76" },
-            { id: 5, name: "Grand Theater", type: "theater", x: 600, y: 350, color: "#a78bfa" },
-            { id: 6, name: "Starlight Cinema", type: "cinema", x: 700, y: 150, color: "#ff6b6b" },
-            { id: 7, name: "Gourmet Corner", type: "restaurant", x: 100, y: 400, color: "#4ecdc4" },
-            { id: 8, name: "Riverside Park", type: "park", x: 400, y: 450, color: "#ffe66d" },
-            { id: 9, name: "Plaza Mall", type: "mall", x: 650, y: 250, color: "#ff9a76" },
-            { id: 10, name: "Drama House", type: "theater", x: 200, y: 200, color: "#a78bfa" },
-            { id: 11, name: "Cinema Royale", type: "cinema", x: 350, y: 150, color: "#ff6b6b" },
-            { id: 12, name: "Italian Bistro", type: "restaurant", x: 550, y: 100, color: "#4ecdc4" },
-            { id: 13, name: "Botanical Gardens", type: "park", x: 150, y: 250, color: "#ffe66d" },
-            { id: 14, name: "Fashion Mall", type: "mall", x: 450, y: 350, color: "#ff9a76" },
-            { id: 15, name: "Opera Hall", type: "theater", x: 750, y: 400, color: "#a78bfa" }
-        ];
+        // Entertainment venues data - Fetched from backend
+        let venues = [];
 
 
 
@@ -598,6 +583,32 @@
         const resetBtn = document.getElementById('resetBtn');
 
         const connectionStatus = document.getElementById('connectionStatus');
+
+        async function loadInitialVenues() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/venues`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.venues) {
+                        const colorMap = {
+                            cinema: "#ff6b6b",
+                            restaurant: "#4ecdc4",
+                            park: "#ffe66d",
+                            mall: "#ff9a76",
+                            theater: "#a78bfa"
+                        };
+
+                        venues = data.venues.map(v => ({
+                            ...v,
+                            color: colorMap[v.type] || "#ffffff"
+                        }));
+                        console.log(`Loaded ${venues.length} venues from backend`);
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading venues:", error);
+            }
+        }
 
         // Global variables
         let userPoint = null;
@@ -684,17 +695,17 @@
                         const index = venues.findIndex(v => v.id === nearestVenue.id);
                         if (index !== -1) {
                             venues.splice(index, 1);
-                            
+
                             // Re-draw map
                             nearestVenue = null;
                             drawMap();
-                            
+
                             // Update tree visualization if active
                             const treeTab = document.getElementById('treeTab');
                             if (treeTab.classList.contains('active')) {
                                 loadTreeVisualization();
                             }
-                            
+
                             searchResults.innerHTML = "<p>Nearest venue deleted.</p>";
                         }
                     } else {
@@ -957,7 +968,13 @@
         // Initialize
         async function initialize() {
             // Test backend connection on startup
-            await testBackendConnection();
+            const connected = await testBackendConnection();
+
+            if (connected) {
+                await loadInitialVenues();
+            } else {
+                console.warn("Could not connect to backend to fetch venues");
+            }
 
             // Draw initial map
             drawMap();
