@@ -691,23 +691,21 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
-                        // Remove from local array
-                        const index = venues.findIndex(v => v.id === nearestVenue.id);
-                        if (index !== -1) {
-                            venues.splice(index, 1);
+                        // Force sync with backend instead of local splicing
+                        console.log("Venue deleted on backend. Reloading venues...");
+                        await loadInitialVenues();
 
-                            // Re-draw map
-                            nearestVenue = null;
-                            drawMap();
+                        // Clear selection and redraw
+                        nearestVenue = null;
+                        drawMap();
 
-                            // Update tree visualization if active
-                            const treeTab = document.getElementById('treeTab');
-                            if (treeTab.classList.contains('active')) {
-                                loadTreeVisualization();
-                            }
-
-                            searchResults.innerHTML = "<p>Nearest venue deleted.</p>";
+                        // Update tree visualization if active
+                        const treeTab = document.getElementById('treeTab');
+                        if (treeTab && treeTab.classList.contains('active')) {
+                            loadTreeVisualization();
                         }
+
+                        searchResults.innerHTML = "<p>Nearest venue deleted.</p>";
                     } else {
                         alert("Failed to delete venue: " + data.message);
                     }
