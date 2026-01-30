@@ -39,7 +39,7 @@ This project implements a **K-Dimensional Tree** in C to perform spatial hashing
 
 2.  **Compile the Backend**
     ```bash
-    make server
+    gcc server.c backend.c -o server -lm
     ```
 
 3.  **Start the Server**
