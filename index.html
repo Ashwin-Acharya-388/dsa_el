@@ -1,989 +1,977 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>2D Tree Nearest Neighbor Search - Entertainment Guide</title>
+    <!-- LEAFLET CSS - Added for map visualization -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <!-- LEAFLET JS - Added for map functionality -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #0f172a;
+        color: #f1f5f9;
+        min-height: 100vh;
+        padding: 20px;
+        line-height: 1.6;
+        padding: 40px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      h1 {
+        color: #f8fafc;
+        font-size: 1.8rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+      }
+
+      .subtitle,
+      .connection-status,
+      .disconnected,
+      .connected {
+        display: none;
+      }
+
+      .content {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .bottom-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .map-panel {
+        width: 100%;
+        padding: 25px;
+        border-radius: 18px;
+      }
+
+      .map-panel h2 {
+        text-align: center;
+        font-size: 1.6rem;
+      }
+
+      .panel {
+        flex: 1;
+        min-width: 300px;
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 30px;
+        border: 1px solid #334155;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .panel h2 {
+        color: #e2e8f0;
+        margin-bottom: 25px;
+        font-size: 1.25rem;
+        font-weight: 600;
+        border-bottom: none;
+      }
+
+      .panel h3 {
+        margin-bottom: 10px;
+      }
+
+      .bottom-content .panel {
+        height: 100%;
+      }
+
+      .result-card {
+        line-height: 1.7;
+      }
+
+      #mapContainer {
+        height: 500px;
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      /* LEAFLET MAP STYLES - Updated from canvas */
+      #map {
+        height: 100%;
+        width: 100%;
+        cursor: crosshair;
+        z-index: 1;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .control-group {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #a5a3ff;
+        font-size: 0.9rem;
+        opacity: 0.85;
+      }
+
+      input,
+      select {
+        font-size: 0.95rem;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        font-size: 1rem;
+      }
+
+      button {
+        background: #3b82f6;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-top: 10px;
+      }
+
+      button:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      }
+
+      button:disabled {
+        background: #666;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      #searchResults {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        min-height: 100px;
+      }
+
+      .venue-item {
+        background: rgba(108, 99, 255, 0.1);
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border-left: 4px solid #6c63ff;
+      }
+
+      .venue-item.nearest {
+        background: rgba(76, 175, 80, 0.2);
+        border-left-color: #4caf50;
+        animation: pulse 2s infinite;
+      }
+
+      .performance-stats {
+        background: rgba(255, 152, 118, 0.1);
+        border-left-color: #ff9a76;
+        margin-top: 15px;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
         }
 
-        body {
-            background-color: #0f172a;
-            color: #f1f5f9;
-            min-height: 100vh;
-
-            padding: 20px;
-            line-height: 1.6;
-
-            padding: 40px;
-
+        70% {
+          box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        100% {
+          box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
         }
+      }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #1e293b;
-        }
+      .tree-visualization {
+        height: 400px;
+        overflow: auto;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        margin-top: 15px;
+        font-family: "Courier New", monospace;
+        white-space: pre;
+        font-size: 12px;
+        line-height: 1.4;
+      }
 
-        h1 {
-            color: #f8fafc;
-            font-size: 1.8rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-        }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+      }
 
-        .subtitle,
-        .connection-status,
-        .disconnected,
-        .connected {
-            display: none;
-        }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+      }
+
+      .tab-container {
+        margin-top: 20px;
+      }
+
+      .tabs {
+        display: flex;
+        border-bottom: 2px solid rgba(108, 99, 255, 0.3);
+      }
+
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        color: #a5a3ff;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+
+      .tab.active {
+        color: #6c63ff;
+        border-bottom: 3px solid #6c63ff;
+        font-weight: bold;
+      }
+
+      .tab-content {
+        padding: 20px 0;
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
         .content {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            margin-bottom: 30px;
+          flex-direction: column;
         }
 
         .bottom-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+          grid-template-columns: 1fr;
         }
 
-        .map-panel {
-            width: 100%;
-            padding: 25px;
-            border-radius: 18px;
+        h1 {
+          font-size: 2rem;
         }
-
-        .map-panel h2 {
-            text-align: center;
-            font-size: 1.6rem;
-        }
-
-        .panel {
-            flex: 1;
-            min-width: 300px;
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid #334155;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        .panel h2 {
-            color: #e2e8f0;
-            margin-bottom: 25px;
-            font-size: 1.25rem;
-            font-weight: 600;
-            border-bottom: none;
-        }
-
-        .panel h3 {
-            margin-bottom: 10px;
-        }
-
-        .bottom-content .panel {
-            height: 100%;
-        }
-
-        .result-card {
-            line-height: 1.7;
-        }
-
-
-        #mapContainer {
-            height: 500px;
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        #mapCanvas {
-            background: #1e3a5f;
-            width: 100%;
-            height: 100%;
-        }
-
-        canvas {
-            cursor: crosshair;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .control-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #a5a3ff;
-            font-size: 0.9rem;
-            opacity: 0.85;
-        }
-
-        input,
-        select {
-            font-size: 0.95rem;
-        }
-
-        input,
-        select,
-        button {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-size: 1rem;
-        }
-
-        button {
-            background: #3b82f6;
-            border: none;
-            cursor: pointer;
-
-            font-weight: bold;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-            font-weight: 500;
-            transition: all 0.2s;
-
-            margin-top: 10px;
-        }
-
-        button:hover {
-
-            background: linear-gradient(90deg, #4a44c8, #6c63ff);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-
-            background: #2563eb;
-            transform: none;
-            box-shadow: none;
-
-        }
-
-        button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        #searchResults {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            min-height: 100px;
-        }
-
-        .venue-item {
-            background: rgba(108, 99, 255, 0.1);
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border-left: 4px solid #6c63ff;
-        }
-
-        .venue-item.nearest {
-            background: rgba(76, 175, 80, 0.2);
-            border-left-color: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-
-        .performance-stats {
-            background: rgba(255, 152, 118, 0.1);
-            border-left-color: #ff9a76;
-            margin-top: 15px;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-            }
-        }
-
-        .tree-visualization {
-            height: 400px;
-            overflow: auto;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            margin-top: 15px;
-            font-family: 'Courier New', monospace;
-            white-space: pre;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
-
-        .explanation {
-            line-height: 1.6;
-            margin-top: 20px;
-        }
-
-        .explanation p {
-            margin-bottom: 15px;
-        }
-
-        .code-block {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            border-left: 4px solid #6c63ff;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            color: #a5a3ff;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .complexity {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            gap: 15px;
-        }
-
-        .complexity-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            flex: 1;
-            min-width: 200px;
-            text-align: center;
-        }
-
-        .complexity-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #6c63ff;
-            margin-top: 5px;
-        }
-
-        .backend-info {
-            background: rgba(167, 139, 250, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #a78bfa;
-        }
-
-        .tab-container {
-            margin-top: 20px;
+        #map {
+          height: 100%;
+          width: 100%;
         }
 
         .tabs {
-            display: flex;
-            border-bottom: 2px solid rgba(108, 99, 255, 0.3);
+          flex-wrap: wrap;
         }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: transparent;
-            border: none;
-            color: #a5a3ff;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            color: #6c63ff;
-            border-bottom: 3px solid #6c63ff;
-            font-weight: bold;
-        }
-
-        .tab-content {
-            padding: 20px 0;
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
-            }
-
-            .bottom-content {
-                grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .tabs {
-                flex-wrap: wrap;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <header>
-            <h1>Venue Finder</h1>
-        </header>
+      <header>
+        <h1>Venue Finder</h1>
+      </header>
 
-        <div class="content">
-            <div class="panel map-panel">
-                <h2>Entertainment Map</h2>
-                <div id="mapContainer">
-                    <canvas id="mapCanvas" width="800" height="500"></canvas>
-                </div>
+      <div class="content">
+        <div class="panel map-panel">
+          <h2>Entertainment Map</h2>
+          <div id="mapContainer">
+            <!-- LEAFLET MAP CONTAINER - Updated from canvas -->
+            <div id="map"></div>
+          </div>
 
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="venueType">Venue Type</label>
-                        <select id="venueType">
-                            <option value="all">All Venues</option>
-                            <option value="cinema">Cinema</option>
-                            <option value="restaurant">Restaurant</option>
-                            <option value="park">Park</option>
-                            <option value="mall">Shopping Mall</option>
-                            <option value="theater">Theater</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group">
-                        <button id="resetBtn">Reset Map & Tree</button>
-
-                    </div>
-                </div>
-
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ff6b6b;"></div>
-                        <span>Cinema</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #4ecdc4;"></div>
-                        <span>Restaurant</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ffe66d;"></div>
-                        <span>Park</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ff9a76;"></div>
-                        <span>Shopping Mall</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #a78bfa;"></div>
-                        <span>Theater</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ffffff;"></div>
-                        <span>Your Location</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #4CAF50;"></div>
-                        <span>Nearest Venue</span>
-                    </div>
-                </div>
+          <div class="controls">
+            <div class="control-group">
+              <label for="venueType">Venue Type</label>
+              <select id="venueType">
+                <option value="all">All Venues</option>
+                <option value="cinema">Cinema</option>
+                <option value="restaurant">Restaurant</option>
+                <option value="park">Park</option>
+                <option value="mall">Shopping Mall</option>
+                <option value="theater">Theater</option>
+              </select>
             </div>
 
-
-            <div class="bottom-content">
-
-                <div class="panel">
-                    <h2>Venue Management</h2>
-                    <div class="controls">
-                        <div class="control-group">
-                            <label for="newVenueName">Venue Name</label>
-                            <input type="text" id="newVenueName" placeholder="Enter venue name">
-                        </div>
-
-                        <div class="control-group">
-                            <label for="newVenueType">Venue Type</label>
-                            <select id="newVenueType">
-                                <option value="cinema">Cinema</option>
-                                <option value="restaurant">Restaurant</option>
-                                <option value="park">Park</option>
-                                <option value="mall">Shopping Mall</option>
-                                <option value="theater">Theater</option>
-                            </select>
-                        </div>
-
-                        <div class="control-group">
-                            <button onclick="enableAddMode()">➕ Add Venue (Click on Map)</button>
-                            <button onclick="deleteNearestVenue()">❌ Delete Nearest Venue</button>
-                        </div>
-                    </div>
-
-                    <p style="margin-top:10px;color:#a5a3ff;">
-                        Add a venue by clicking on the map. Delete removes the nearest venue to your selected point.
-                    </p>
-                </div>
-
-                <div class="panel">
-                    <div class="tab-container">
-                        <div class="tabs">
-                            <button class="tab active" onclick="switchTab('results')">Search Results</button>
-                            <button class="tab" onclick="switchTab('tree')">K-D Tree Visualization</button>
-                        </div>
-
-                        <div id="resultsTab" class="tab-content active">
-                            <h2>Nearest Venue Search Results</h2>
-                            <div id="searchResults">
-                                <p>Click on the map to find the nearest entertainment venue. The results will appear
-                                    here.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div id="treeTab" class="tab-content">
-                            <h2>K-D Tree Visualization</h2>
-                            <div class="tree-visualization" id="treeVisualization">
-                                Tree visualization will appear here after initialization.
-                            </div>
-                        </div>
-
-
-                    </div>
-
-
-
-
-
-                </div>
+            <div class="control-group">
+              <button id="resetBtn">Reset Map & Tree</button>
             </div>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #ff6b6b"></div>
+              <span>Cinema</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #4ecdc4"></div>
+              <span>Restaurant</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #ffe66d"></div>
+              <span>Park</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #ff9a76"></div>
+              <span>Shopping Mall</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #a78bfa"></div>
+              <span>Theater</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #ffffff"></div>
+              <span>Your Location</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #4caf50"></div>
+              <span>Nearest Venue</span>
+            </div>
+          </div>
         </div>
 
+        <div class="bottom-content">
+          <div class="panel">
+            <h2>Venue Management</h2>
+            <div class="controls">
+              <div class="control-group">
+                <label for="newVenueName">Venue Name</label>
+                <input
+                  type="text"
+                  id="newVenueName"
+                  placeholder="Enter venue name"
+                />
+              </div>
 
+              <div class="control-group">
+                <label for="newVenueType">Venue Type</label>
+                <select id="newVenueType">
+                  <option value="cinema">Cinema</option>
+                  <option value="restaurant">Restaurant</option>
+                  <option value="park">Park</option>
+                  <option value="mall">Shopping Mall</option>
+                  <option value="theater">Theater</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <button onclick="enableAddMode()">
+                  ➕ Add Venue (Click on Map)
+                </button>
+                <button onclick="deleteNearestVenue()">
+                  ❌ Delete Nearest Venue
+                </button>
+              </div>
+            </div>
+
+            <p style="margin-top: 10px; color: #a5a3ff">
+              Add a venue by clicking on the map. Delete removes the nearest
+              venue to your selected point.
+            </p>
+          </div>
+
+          <div class="panel">
+            <div class="tab-container">
+              <div class="tabs">
+                <button class="tab active" onclick="switchTab('results')">
+                  Search Results
+                </button>
+                <button class="tab" onclick="switchTab('tree')">
+                  K-D Tree Visualization
+                </button>
+              </div>
+
+              <div id="resultsTab" class="tab-content active">
+                <h2>Nearest Venue Search Results</h2>
+                <div id="searchResults">
+                  <p>
+                    Click on the map to find the nearest entertainment venue.
+                    The results will appear here.
+                  </p>
+                </div>
+              </div>
+
+              <div id="treeTab" class="tab-content">
+                <h2>K-D Tree Visualization</h2>
+                <div class="tree-visualization" id="treeVisualization">
+                  Tree visualization will appear here after initialization.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Hidden elements for JS compatibility -->
-    <div id="connectionStatus" style="display: none;"></div>
-    <div id="backendStatus" style="display: none;"></div>
+    <div id="connectionStatus" style="display: none"></div>
+    <div id="backendStatus" style="display: none"></div>
 
     <script>
-        // Tab switching function (No longer needed, but kept empty/stubbed if any refs remain, though none should)
-        // Tab switching function
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+      // Tab switching function
+      function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
 
-            // Show selected tab
-            const selectedTab = document.getElementById(tabName + 'Tab');
-            if (selectedTab) selectedTab.classList.add('active');
+        // Show selected tab
+        const selectedTab = document.getElementById(tabName + "Tab");
+        if (selectedTab) selectedTab.classList.add("active");
 
-            // Highlight button
-            const buttons = document.querySelectorAll('.tab');
-            buttons.forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(tabName === 'results' ? 'search' : 'tree')) {
-                    btn.classList.add('active');
-                }
-            });
+        // Highlight button
+        const buttons = document.querySelectorAll(".tab");
+        buttons.forEach((btn) => {
+          if (
+            btn.textContent
+              .toLowerCase()
+              .includes(tabName === "results" ? "search" : "tree")
+          ) {
+            btn.classList.add("active");
+          }
+        });
 
-            if (tabName === 'tree') {
+        if (tabName === "tree") {
+          loadTreeVisualization();
+        }
+      }
+
+      async function loadTreeVisualization() {
+        const treeVis = document.getElementById("treeVisualization");
+        treeVis.textContent = "Loading tree structure...";
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/tree`);
+          if (response.ok) {
+            const text = await response.text();
+            treeVis.textContent = text;
+          } else {
+            treeVis.textContent = "Error loading tree visualization.";
+          }
+        } catch (e) {
+          console.error(e);
+          treeVis.textContent = "Could not connect to backend.";
+        }
+      }
+
+      // Entertainment venues data - Fetched from backend
+      let venues = [];
+
+      // LEAFLET MAP INITIALIZATION - Updated from canvas
+      let map;
+      let userMarker = null;
+      let nearestMarker = null;
+      let connectionLine = null;
+      let venueMarkers = [];
+
+      // DOM elements
+      const searchResults = document.getElementById("searchResults");
+      const venueTypeSelect = document.getElementById("venueType");
+      const resetBtn = document.getElementById("resetBtn");
+      const connectionStatus = document.getElementById("connectionStatus");
+
+      async function loadInitialVenues() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/venues`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.venues) {
+              const colorMap = {
+                cinema: "#ff6b6b",
+                restaurant: "#4ecdc4",
+                park: "#ffe66d",
+                mall: "#ff9a76",
+                theater: "#a78bfa",
+              };
+
+              venues = data.venues.map((v) => ({
+                ...v,
+                color: colorMap[v.type] || "#ffffff",
+              }));
+              console.log(`Loaded ${venues.length} venues from backend`);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading venues:", error);
+        }
+      }
+
+      // Global variables
+      let userPoint = null;
+      let nearestVenue = null;
+      const API_BASE_URL = "http://localhost:8080";
+
+      // Add & Delete venues
+      let addMode = false;
+      function enableAddMode() {
+        addMode = true;
+        alert("Click on the map to add a new venue");
+      }
+
+      async function addVenueAtPoint(x, y) {
+        const name = document.getElementById("newVenueName").value.trim();
+        const type = document.getElementById("newVenueType").value;
+
+        if (!name) {
+          alert("Please enter venue name");
+          return;
+        }
+
+        try {
+          const url = `${API_BASE_URL}/api/add_venue?name=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}&x=${x}&y=${y}`;
+
+          const response = await fetch(url);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              alert(`Venue "${name}" added successfully`);
+
+              const colorMap = {
+                cinema: "#ff6b6b",
+                restaurant: "#4ecdc4",
+                park: "#ffe66d",
+                mall: "#ff9a76",
+                theater: "#a78bfa",
+              };
+
+              venues.push({
+                id: data.id,
+                name: name,
+                type: type,
+                x: x,
+                y: y,
+                color: colorMap[type] || "#ffffff",
+              });
+
+              addMode = false;
+              drawMap();
+
+              const treeTab = document.getElementById("treeTab");
+              if (treeTab.classList.contains("active")) {
                 loadTreeVisualization();
+              }
+            } else {
+              alert("Failed to add venue: " + data.message);
             }
+          } else {
+            alert("Server error adding venue");
+          }
+        } catch (error) {
+          console.error("Error adding venue:", error);
+          alert("Could not connect to backend to add venue");
+        }
+      }
+
+      async function deleteNearestVenue() {
+        if (!userPoint || !nearestVenue) {
+          alert("Select a point first");
+          return;
         }
 
-        async function loadTreeVisualization() {
-            const treeVis = document.getElementById('treeVisualization');
-            treeVis.textContent = "Loading tree structure...";
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/api/delete_venue?id=${nearestVenue.id}`,
+          );
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              console.log("Venue deleted on backend. Reloading venues...");
+              await loadInitialVenues();
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/tree`);
-                if (response.ok) {
-                    const text = await response.text();
-                    treeVis.textContent = text;
-                } else {
-                    treeVis.textContent = "Error loading tree visualization.";
-                }
-            } catch (e) {
-                console.error(e);
-                treeVis.textContent = "Could not connect to backend.";
+              nearestVenue = null;
+              drawMap();
+
+              const treeTab = document.getElementById("treeTab");
+              if (treeTab && treeTab.classList.contains("active")) {
+                loadTreeVisualization();
+              }
+
+              searchResults.innerHTML = "<p>Nearest venue deleted.</p>";
+            } else {
+              alert("Failed to delete venue: " + data.message);
             }
+          } else {
+            alert("Server error deleting venue");
+          }
+        } catch (error) {
+          console.error("Error deleting venue:", error);
+          alert("Could not connect to backend to delete venue");
+        }
+      }
+
+      // Test Backend Connection
+      async function testBackendConnection() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/venues`);
+          if (response.ok) {
+            console.log("Backend Connected");
+            return true;
+          }
+        } catch (error) {
+          console.error("Backend not reachable:", error);
+        }
+        return false;
+      }
+
+      // Search using Backend
+      async function searchNearestVenue(x, y, type) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/api/nearest?x=${x}&y=${y}&type=${type}&algorithm=kdtree`,
+          );
+          return await response.json();
+        } catch (error) {
+          console.error("Search failed:", error);
+          return { success: false, message: error.message };
+        }
+      }
+
+      // Update search results display
+      function updateSearchResults(point, data, algorithm, type) {
+        if (!data.success || !data.result) {
+          searchResults.innerHTML = `<p>No ${type !== "all" ? type : ""} venue found near the selected location.</p>`;
+          return;
         }
 
-        // Entertainment venues data with coordinates and types
-        // Entertainment venues data - Fetched from backend
-        let venues = [];
+        const venue = data.result;
+        const searches = data.searches;
+        const backendUsed = data.backend || "python";
 
+        const distance = Math.sqrt(
+          Math.pow(venue.x - point.x, 2) + Math.pow(venue.y - point.y, 2),
+        ).toFixed(1);
 
-
-        // DOM elements
-        const mapCanvas = document.getElementById('mapCanvas');
-        const ctx = mapCanvas.getContext('2d');
-        const searchResults = document.getElementById('searchResults');
-        const venueTypeSelect = document.getElementById('venueType');
-        const resetBtn = document.getElementById('resetBtn');
-
-        const connectionStatus = document.getElementById('connectionStatus');
-
-        async function loadInitialVenues() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/venues`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.venues) {
-                        const colorMap = {
-                            cinema: "#ff6b6b",
-                            restaurant: "#4ecdc4",
-                            park: "#ffe66d",
-                            mall: "#ff9a76",
-                            theater: "#a78bfa"
-                        };
-
-                        venues = data.venues.map(v => ({
-                            ...v,
-                            color: colorMap[v.type] || "#ffffff"
-                        }));
-                        console.log(`Loaded ${venues.length} venues from backend`);
-                    }
-                }
-            } catch (error) {
-                console.error("Error loading venues:", error);
-            }
-        }
-
-        // Global variables
-        let userPoint = null;
-        let nearestVenue = null;
-        const API_BASE_URL = 'http://localhost:8080';
-
-
-        //Add&Delete_venues
-        let addMode = false;
-        function enableAddMode() {
-            addMode = true;
-            alert("Click on the map to add a new venue");
-        }
-        async function addVenueAtPoint(x, y) {
-            const name = document.getElementById("newVenueName").value.trim();
-            const type = document.getElementById("newVenueType").value;
-
-            if (!name) {
-                alert("Please enter venue name");
-                return;
-            }
-
-            try {
-                // Construct URL with parameters
-                const url = `${API_BASE_URL}/api/add_venue?name=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}&x=${x}&y=${y}`;
-
-                const response = await fetch(url);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        alert(`Venue "${name}" added successfully`);
-
-                        // Add to local venues for display purposes immediately (optional, or reload)
-                        // But better to reload venues because ID is generated by backend
-                        // For simplicity, we just add to local array with backend ID
-                        const colorMap = {
-                            cinema: "#ff6b6b",
-                            restaurant: "#4ecdc4",
-                            park: "#ffe66d",
-                            mall: "#ff9a76",
-                            theater: "#a78bfa"
-                        };
-
-                        venues.push({
-                            id: data.id,
-                            name: name,
-                            type: type,
-                            x: x,
-                            y: y,
-                            color: colorMap[type] || "#ffffff"
-                        });
-
-                        addMode = false;
-                        drawMap();
-
-                        // Also update tree visualization if tab is active
-                        const treeTab = document.getElementById('treeTab');
-                        if (treeTab.classList.contains('active')) {
-                            loadTreeVisualization();
-                        }
-                    } else {
-                        alert("Failed to add venue: " + data.message);
-                    }
-                } else {
-                    alert("Server error adding venue");
-                }
-            } catch (error) {
-                console.error("Error adding venue:", error);
-                alert("Could not connect to backend to add venue");
-            }
-        }
-        async function deleteNearestVenue() {
-            if (!userPoint || !nearestVenue) {
-                alert("Select a point first");
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/delete_venue?id=${nearestVenue.id}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        // Force sync with backend instead of local splicing
-                        console.log("Venue deleted on backend. Reloading venues...");
-                        await loadInitialVenues();
-
-                        // Clear selection and redraw
-                        nearestVenue = null;
-                        drawMap();
-
-                        // Update tree visualization if active
-                        const treeTab = document.getElementById('treeTab');
-                        if (treeTab && treeTab.classList.contains('active')) {
-                            loadTreeVisualization();
-                        }
-
-                        searchResults.innerHTML = "<p>Nearest venue deleted.</p>";
-                    } else {
-                        alert("Failed to delete venue: " + data.message);
-                    }
-                } else {
-                    alert("Server error deleting venue");
-                }
-            } catch (error) {
-                console.error("Error deleting venue:", error);
-                alert("Could not connect to backend to delete venue");
-            }
-        }
-
-        // Test C backend connection
-
-        // Test Backend Connection
-
-        async function testBackendConnection() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/venues`);
-                if (response.ok) {
-                    console.log("C Backend Connected");
-                    return true;
-                }
-            } catch (error) {
-                console.error("Backend not reachable:", error);
-                alert("Cannot connect to C backend!");
-            }
-            return false;
-        }
-
-        // Search for nearest venue using C backend or JavaScript fallback
-        // Search using C Backend
-        async function searchNearestVenue(x, y, type) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/nearest?x=${x}&y=${y}&type=${type}&algorithm=kdtree`);
-                return await response.json();
-            } catch (error) {
-                console.error("Search failed:", error);
-                return { success: false, message: error.message };
-            }
-        }
-
-        // Update search results display
-        function updateSearchResults(point, data, algorithm, type) {
-            if (!data.success || !data.result) {
-                searchResults.innerHTML = `<p>No ${type !== 'all' ? type : ''} venue found near the selected location.</p>`;
-                return;
-            }
-
-            const venue = data.result;
-            const searches = data.searches;
-            const backendUsed = data.backend || 'javascript';
-
-            const distance = Math.sqrt(
-                Math.pow(venue.x - point.x, 2) + Math.pow(venue.y - point.y, 2)
-            ).toFixed(1);
-
-            searchResults.innerHTML = `
+        searchResults.innerHTML = `
                 <div class="venue-item nearest">
-                    <h3>Nearest ${type !== 'all' ? type : 'Entertainment'} Venue:</h3>
+                    <h3>Nearest ${type !== "all" ? type : "Entertainment"} Venue:</h3>
                     <p><strong>${venue.name}</strong> (${venue.type})</p>
                     <p>Distance: ${distance} units</p>
                     <p>Coordinates: (${venue.x}, ${venue.y})</p>
-                    <p>Algorithm: ${algorithm === 'kdtree' ? 'K-D Tree Search' : 'Brute Force'}</p>
+                    <p>Algorithm: ${algorithm === "kdtree" ? "K-D Tree Search" : "Brute Force"}</p>
                     <p>Search operations: ${searches}</p>
-                    <p>Backend: ${backendUsed === 'c' ? 'C (Compiled)' : 'JavaScript'}</p>
+                    <p>Backend: ${backendUsed}</p>
                 </div>
                 <div class="venue-item performance-stats">
                     <h4>Performance Statistics:</h4>
-                    <p>Time Complexity: ${data.complexity || (algorithm === 'kdtree' ? 'O(log n)' : 'O(n)')}</p>
+                    <p>Time Complexity: ${data.complexity || (algorithm === "kdtree" ? "O(log n)" : "O(n)")}</p>
                     <p>Total Venues: ${venues.length}</p>
-                    <p>Efficiency: ${Math.round(venues.length / searches * 100) / 100}x faster than checking all venues</p>
+                    <p>Efficiency: ${Math.round((venues.length / searches) * 100) / 100}x faster than checking all venues</p>
                 </div>
                 <p style="margin-top: 15px;">Other nearby venues:</p>
             `;
 
-            // Show other venues sorted by distance
-            const otherVenues = venues
-                .filter(v => v.id !== venue.id && (type === 'all' || v.type === type))
-                .map(v => {
-                    const dist = Math.sqrt(
-                        Math.pow(v.x - point.x, 2) + Math.pow(v.y - point.y, 2)
-                    );
-                    return { ...v, distance: dist };
-                })
-                .sort((a, b) => a.distance - b.distance)
-                .slice(0, 5);
+        // Show other venues sorted by distance
+        const otherVenues = venues
+          .filter(
+            (v) => v.id !== venue.id && (type === "all" || v.type === type),
+          )
+          .map((v) => {
+            const dist = Math.sqrt(
+              Math.pow(v.x - point.x, 2) + Math.pow(v.y - point.y, 2),
+            );
+            return { ...v, distance: dist };
+          })
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 5);
 
-            otherVenues.forEach(v => {
-                const venueElement = document.createElement('div');
-                venueElement.className = 'venue-item';
-                venueElement.innerHTML = `
+        otherVenues.forEach((v) => {
+          const venueElement = document.createElement("div");
+          venueElement.className = "venue-item";
+          venueElement.innerHTML = `
                     <p><strong>${v.name}</strong> (${v.type})</p>
                     <p>Distance: ${v.distance.toFixed(1)} units</p>
                     <p>Coordinates: (${v.x}, ${v.y})</p>
                 `;
-                searchResults.appendChild(venueElement);
-            });
+          searchResults.appendChild(venueElement);
+        });
+      }
+
+      // LEAFLET MAP FUNCTIONS - Updated from canvas drawing
+      function initializeMap() {
+        console.log("Initializing Leaflet map...");
+
+        try {
+          // Initialize Leaflet map with OpenStreetMap tiles - Centered on Bangalore
+          map = L.map("map").setView([12.9716, 77.5946], 12);
+
+          // Use OpenStreetMap tiles (more reliable than Mapbox)
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "© OpenStreetMap contributors",
+            maxZoom: 18,
+          }).addTo(map);
+
+          console.log("Map initialized successfully");
+
+          // Handle map clicks - Convert lat/lng to x,y coordinates
+          map.on("click", function (e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+
+            // Convert lat/lng to x,y coordinates (scaled to match original canvas coordinates)
+            const bounds = map.getBounds();
+
+            // Scale to 0-800 range (original canvas size)
+            const x =
+              ((lng - bounds.getWest()) /
+                (bounds.getEast() - bounds.getWest())) *
+              800;
+            const y =
+              ((bounds.getNorth() - lat) /
+                (bounds.getNorth() - bounds.getSouth())) *
+              500;
+
+            console.log(
+              `Map clicked at: lat=${lat}, lng=${lng}, x=${x}, y=${y}`,
+            );
+            handleMapClick({ x, y, latlng: e.latlng });
+          });
+        } catch (error) {
+          console.error("Error initializing map:", error);
+          document.getElementById("map").innerHTML =
+            "<p style='color: red; padding: 20px;'>Error loading map. Please refresh the page.</p>";
+        }
+      }
+
+      function convertXYToLatLng(x, y) {
+        // Convert x,y coordinates back to lat/lng for map display
+        const bounds = map.getBounds();
+        const lng =
+          bounds.getWest() + (x / 800) * (bounds.getEast() - bounds.getWest());
+        const lat =
+          bounds.getNorth() -
+          (y / 500) * (bounds.getNorth() - bounds.getSouth());
+        return [lat, lng];
+      }
+
+      function drawMap() {
+        if (!map) {
+          console.log("Map not initialized yet");
+          return;
         }
 
-        // Draw the map with venues
-        function drawMap() {
-            // Clear canvas
-            ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+        console.log("Drawing map with", venues.length, "venues");
 
-            // Draw grid
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
+        // Clear existing markers and lines
+        if (userMarker) map.removeLayer(userMarker);
+        if (nearestMarker) map.removeLayer(nearestMarker);
+        if (connectionLine) map.removeLayer(connectionLine);
+        venueMarkers.forEach((marker) => map.removeLayer(marker));
+        venueMarkers = [];
 
-            // Vertical grid lines
-            for (let x = 0; x <= mapCanvas.width; x += 50) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, mapCanvas.height);
-                ctx.stroke();
-            }
+        // Draw venue markers
+        venues.forEach((venue) => {
+          const [lat, lng] = convertXYToLatLng(venue.x, venue.y);
 
-            // Horizontal grid lines
-            for (let y = 0; y <= mapCanvas.height; y += 50) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(mapCanvas.width, y);
-                ctx.stroke();
-            }
+          const marker = L.circleMarker([lat, lng], {
+            radius: 10,
+            fillColor: venue.color,
+            color: "#000000",
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 1,
+          }).addTo(map);
 
-            // Draw axis labels
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'center';
-
-            for (let x = 0; x <= mapCanvas.width; x += 100) {
-                ctx.fillText(x.toString(), x, mapCanvas.height - 5);
-            }
-
-            for (let y = 0; y <= mapCanvas.height; y += 100) {
-                ctx.fillText(y.toString(), 15, y);
-            }
-
-            // Draw venues
-            venues.forEach(venue => {
-                // Draw venue circle
-                ctx.fillStyle = venue.color;
-                ctx.beginPath();
-                ctx.arc(venue.x, venue.y, 8, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Draw venue name
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(venue.name, venue.x, venue.y - 15);
-
-                // Draw venue type
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.font = '10px Arial';
-                ctx.fillText(venue.type, venue.x, venue.y + 20);
-            });
-
-            // Draw user point if exists
-            if (userPoint) {
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(userPoint.x, userPoint.y, 10, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Draw pulsating circle for user point
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(userPoint.x, userPoint.y, 15, 0, Math.PI * 2);
-                ctx.stroke();
-
-                // Label user point
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`You (${Math.round(userPoint.x)}, ${Math.round(userPoint.y)})`, userPoint.x, userPoint.y - 30);
-            }
-
-            // Draw line to nearest venue if exists
-            if (userPoint && nearestVenue) {
-                ctx.strokeStyle = '#4CAF50';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(userPoint.x, userPoint.y);
-                ctx.lineTo(nearestVenue.x, nearestVenue.y);
-                ctx.stroke();
-
-                // Highlight nearest venue with a larger circle
-                ctx.fillStyle = '#4CAF50';
-                ctx.beginPath();
-                ctx.arc(nearestVenue.x, nearestVenue.y, 12, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Draw distance text
-                const midX = (userPoint.x + nearestVenue.x) / 2;
-                const midY = (userPoint.y + nearestVenue.y) / 2;
-                const distance = Math.sqrt(
-                    Math.pow(nearestVenue.x - userPoint.x, 2) +
-                    Math.pow(nearestVenue.y - userPoint.y, 2)
-                ).toFixed(1);
-
-                ctx.fillStyle = '#4CAF50';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${distance} units`, midX, midY - 10);
-            }
-        }
-
-        // Handle map click
-        async function handleMapClick(event) {
-            const rect = mapCanvas.getBoundingClientRect();
-
-            const scaleX = mapCanvas.width / rect.width;
-            const scaleY = mapCanvas.height / rect.height;
-            const x = (event.clientX - rect.left) * scaleX;
-            const y = (event.clientY - rect.top) * scaleY;
-
-            if (addMode) {
-                addVenueAtPoint(x, y);
-                return;
-            }
-
-            userPoint = { x, y };
-            const type = venueTypeSelect ? venueTypeSelect.value : 'all';
-            const algorithm = 'kdtree';
-
-            try {
-                const data = await searchNearestVenue(x, y, type, algorithm);
-                if (data.success) {
-                    nearestVenue = data.result;
-                    updateSearchResults(userPoint, data, algorithm, type);
-
-                    const treeVis = document.getElementById('treeVisualization');
-                    if (treeVis) {
-                        treeVis.textContent = "Tree visualization available on backend console.";
-                    }
-                }
-                drawMap();
-            } catch (error) {
-                console.error("Search error:", error);
-            }
-        }
-
-        // Event Listeners
-        mapCanvas.addEventListener('click', handleMapClick);
-
-        resetBtn.addEventListener('click', () => {
-            userPoint = null;
-            nearestVenue = null;
-            // Reset search results
-            searchResults.innerHTML = '<p>Select a location on the map to view details.</p>';
-            drawMap();
+          marker.bindPopup(
+            `<b>${venue.name}</b><br>${venue.type}<br>(${venue.x}, ${venue.y})`,
+          );
+          venueMarkers.push(marker);
         });
 
+        // Draw user point if exists
+        if (userPoint) {
+          const [lat, lng] = convertXYToLatLng(userPoint.x, userPoint.y);
 
+          userMarker = L.circleMarker([lat, lng], {
+            radius: 12,
+            fillColor: "white",
+            color: "#000000",
+            weight: 4,
+            opacity: 1,
+            fillOpacity: 1,
+          }).addTo(map);
 
-        // Initialize
-        async function initialize() {
-            // Test backend connection on startup
-            const connected = await testBackendConnection();
-
-            if (connected) {
-                await loadInitialVenues();
-            } else {
-                console.warn("Could not connect to backend to fetch venues");
-            }
-
-            // Draw initial map
-            drawMap();
-
-            console.log("2D Tree Nearest Neighbor Search initialized");
-            console.log(`Total venues: ${venues.length}`);
+          userMarker.bindPopup(
+            `<b>Your Location</b><br>(${Math.round(userPoint.x)}, ${Math.round(userPoint.y)})`,
+          );
         }
 
-        // Start the application
-        initialize();
-    </script>
-</body>
+        // Draw line to nearest venue and highlight it
+        if (userPoint && nearestVenue) {
+          const [userLat, userLng] = convertXYToLatLng(
+            userPoint.x,
+            userPoint.y,
+          );
+          const [venueLat, venueLng] = convertXYToLatLng(
+            nearestVenue.x,
+            nearestVenue.y,
+          );
 
+          // Draw connection line (Euclidean distance)
+          connectionLine = L.polyline(
+            [
+              [userLat, userLng],
+              [venueLat, venueLng],
+            ],
+            {
+              color: "#4CAF50",
+              weight: 3,
+              opacity: 0.8,
+            },
+          ).addTo(map);
+
+          // Highlight nearest venue
+          nearestMarker = L.circleMarker([venueLat, venueLng], {
+            radius: 15,
+            fillColor: "#4CAF50",
+            color: "#000000",
+            weight: 4,
+            opacity: 1,
+            fillOpacity: 1,
+          }).addTo(map);
+
+          const distance = Math.sqrt(
+            Math.pow(nearestVenue.x - userPoint.x, 2) +
+              Math.pow(nearestVenue.y - userPoint.y, 2),
+          ).toFixed(1);
+
+          nearestMarker.bindPopup(
+            `<b>Nearest: ${nearestVenue.name}</b><br>${nearestVenue.type}<br>Distance: ${distance} units`,
+          );
+        }
+      }
+
+      // Handle map click - Updated to work with Leaflet coordinates
+      async function handleMapClick(clickData) {
+        const { x, y, latlng } = clickData;
+
+        if (addMode) {
+          addVenueAtPoint(x, y);
+          return;
+        }
+
+        userPoint = { x, y };
+        const type = venueTypeSelect ? venueTypeSelect.value : "all";
+        const algorithm = "kdtree";
+
+        try {
+          const data = await searchNearestVenue(x, y, type, algorithm);
+          if (data.success) {
+            nearestVenue = data.result;
+            updateSearchResults(userPoint, data, algorithm, type);
+
+            const treeVis = document.getElementById("treeVisualization");
+            if (treeVis) {
+              treeVis.textContent =
+                "Tree visualization available on backend console.";
+            }
+          }
+          drawMap();
+        } catch (error) {
+          console.error("Search error:", error);
+        }
+      }
+
+      // Event Listeners - Updated for Leaflet map
+      resetBtn.addEventListener("click", () => {
+        userPoint = null;
+        nearestVenue = null;
+        // Reset search results
+        searchResults.innerHTML =
+          "<p>Select a location on the map to view details.</p>";
+        drawMap();
+      });
+
+      // Initialize - Updated to include Leaflet map initialization
+      async function initialize() {
+        console.log("Starting application initialization...");
+
+        // Initialize Leaflet map first
+        initializeMap();
+
+        // Test backend connection on startup
+        const connected = await testBackendConnection();
+
+        if (connected) {
+          await loadInitialVenues();
+        } else {
+          console.warn("Could not connect to backend to fetch venues");
+        }
+
+        // Draw initial map
+        drawMap();
+
+        console.log(
+          "2D Tree Nearest Neighbor Search initialized with Leaflet map",
+        );
+        console.log(`Total venues: ${venues.length}`);
+      }
+
+      // Start the application when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM loaded, starting initialization...");
+        initialize();
+      });
+    </script>
+  </body>
 </html>
