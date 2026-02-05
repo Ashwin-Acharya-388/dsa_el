@@ -60,7 +60,7 @@
             margin-bottom: 30px;
         }
 
-        .bottom-content{
+        .bottom-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
@@ -115,13 +115,14 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
-        
+
         /* Updated for Leaflet */
         #map {
             width: 100%;
             height: 100%;
             min-height: 500px;
-            background: #1e3a5f; /* Fallback */
+            background: #1e3a5f;
+            /* Fallback */
             z-index: 1;
         }
 
@@ -145,7 +146,8 @@
             opacity: 0.85;
         }
 
-        input, select {
+        input,
+        select {
             font-size: 0.95rem;
         }
 
@@ -381,7 +383,8 @@
         }
     </style>
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body>
@@ -456,25 +459,25 @@
                     <h2>Venue Management</h2>
                     <div class="controls">
                         <div class="control-group">
-                        <label for="newVenueName">Venue Name</label>
-                        <input type="text" id="newVenueName" placeholder="Enter venue name">
+                            <label for="newVenueName">Venue Name</label>
+                            <input type="text" id="newVenueName" placeholder="Enter venue name">
                         </div>
 
                         <div class="control-group">
-                        <label for="newVenueType">Venue Type</label>
-                        <select id="newVenueType">
-                            <option value="hospital">Hospital</option>
-                            <option value="park">Park</option>
-                            <option value="cinema">Cinema</option>
-                            <option value="restaurant">Restaurant</option>
-                            <option value="mall">Mall</option>
-                            <option value="metro">Metro Station</option>
-                        </select>
+                            <label for="newVenueType">Venue Type</label>
+                            <select id="newVenueType">
+                                <option value="hospital">Hospital</option>
+                                <option value="park">Park</option>
+                                <option value="cinema">Cinema</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="mall">Mall</option>
+                                <option value="metro">Metro Station</option>
+                            </select>
                         </div>
 
                         <div class="control-group">
-                        <button onclick="enableAddMode()">➕ Add Venue (Click on Map)</button>
-                        <button onclick="deleteNearestVenue()">❌ Delete Nearest Venue</button>
+                            <button onclick="enableAddMode()">➕ Add Venue (Click on Map)</button>
+                            <button onclick="deleteNearestVenue()">❌ Delete Nearest Venue</button>
                         </div>
                     </div>
 
@@ -494,7 +497,8 @@
                         <div id="resultsTab" class="tab-content active">
                             <h2>Nearest Venue Search Results</h2>
                             <div id="searchResults">
-                                <p>Click on the map to find the nearest entertainment venue. The results will appear here.
+                                <p>Click on the map to find the nearest entertainment venue. The results will appear
+                                    here.
                                 </p>
                             </div>
                         </div>
@@ -533,13 +537,15 @@
                                     // Pruning: Only search subtrees that could contain closer points
                                     if (point_coord < node_coord) { nearest_search(node->left, x, y, depth + 1, best,
                                         best_dist, type, search_count);
-                                        if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->right, x, y,
+                                        if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->right,
+                                            x, y,
                                             depth + 1, best, best_dist, type, search_count);
                                             }
                                             } else {
                                             nearest_search(node->right, x, y, depth + 1, best, best_dist, type,
                                             search_count);
-                                            if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->left, x,
+                                            if (fabs(point_coord - node_coord) < *best_dist) { nearest_search(node->
+                                                left, x,
                                                 y, depth + 1, best, best_dist, type, search_count);
                                                 }
                                                 }
@@ -578,16 +584,16 @@
                         <p>To run the C backend, compile and execute the server.c file from the backend directory.</p>
                     </div>
 
-            <div class="panel">
-                <div id="searchResults">
-                    <p style="color: #94a3b8;">Select a location on the map to view details.</p>
+                    <div class="panel">
+                        <div id="searchResults">
+                            <p style="color: #94a3b8;">Select a location on the map to view details.</p>
+
+                        </div>
+                    </div>
 
                 </div>
             </div>
-
         </div>
-    </div>
-    </div>
 
 
     </div>
@@ -596,13 +602,14 @@
     <div id="connectionStatus" style="display: none;"></div>
     <div id="backendStatus" style="display: none;"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         // Tab switching function (No longer needed, but kept empty/stubbed if any refs remain, though none should)
         function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
+
             // Find the button that called this, or assume based on name. 
             // Better to select by content or structure if needed, but existing code uses this.
             // Simplified existing logic preservation:
@@ -622,114 +629,114 @@
         // x = latitude, y = longitude
         const venues = [
             // ---------------- HOSPITALS (1–20) ----------------
-            {id:1, name:"Manipal Hospital Whitefield", type:"hospital", x:12.9698, y:77.7500, color:"#e74c3c"},
-            {id:2, name:"Apollo Hospital Bannerghatta", type:"hospital", x:12.8449, y:77.6034, color:"#e74c3c"},
-            {id:3, name:"Fortis Hospital Bannerghatta", type:"hospital", x:12.8076, y:77.5993, color:"#e74c3c"},
-            {id:4, name:"Narayana Health City", type:"hospital", x:12.8069, y:77.5849, color:"#e74c3c"},
-            {id:5, name:"Columbia Asia Hebbal", type:"hospital", x:13.0358, y:77.5970, color:"#e74c3c"},
-            {id:6, name:"St Johns Medical College", type:"hospital", x:12.9308, y:77.6205, color:"#e74c3c"},
-            {id:7, name:"Victoria Hospital", type:"hospital", x:12.9636, y:77.5731, color:"#e74c3c"},
-            {id:8, name:"Bowring Hospital", type:"hospital", x:12.9816, y:77.6030, color:"#e74c3c"},
-            {id:9, name:"Ramaiah Memorial Hospital", type:"hospital", x:13.0296, y:77.5646, color:"#e74c3c"},
-            {id:10, name:"Aster CMI Hospital", type:"hospital", x:13.0595, y:77.5937, color:"#e74c3c"},
-            {id:11, name:"Sakra World Hospital", type:"hospital", x:12.9255, y:77.6846, color:"#e74c3c"},
-            {id:12, name:"BGS Gleneagles Hospital", type:"hospital", x:12.9077, y:77.4856, color:"#e74c3c"},
-            {id:13, name:"People Tree Hospital", type:"hospital", x:13.0225, y:77.5207, color:"#e74c3c"},
-            {id:14, name:"ESI Hospital Rajajinagar", type:"hospital", x:12.9915, y:77.5531, color:"#e74c3c"},
-            {id:15, name:"KC General Hospital", type:"hospital", x:12.9966, y:77.5706, color:"#e74c3c"},
-            {id:16, name:"Cloudnine Hospital Jayanagar", type:"hospital", x:12.9302, y:77.5833, color:"#e74c3c"},
-            {id:17, name:"NIMHANS", type:"hospital", x:12.9435, y:77.5967, color:"#e74c3c"},
-            {id:18, name:"Vydehi Hospital", type:"hospital", x:12.9731, y:77.7273, color:"#e74c3c"},
-            {id:19, name:"Chinmaya Mission Hospital", type:"hospital", x:12.9837, y:77.6605, color:"#e74c3c"},
-            {id:20, name:"Sapthagiri Hospital", type:"hospital", x:13.0564, y:77.5136, color:"#e74c3c"},
+            { id: 1, name: "Manipal Hospital Whitefield", type: "hospital", x: 12.9698, y: 77.7500, color: "#e74c3c" },
+            { id: 2, name: "Apollo Hospital Bannerghatta", type: "hospital", x: 12.8449, y: 77.6034, color: "#e74c3c" },
+            { id: 3, name: "Fortis Hospital Bannerghatta", type: "hospital", x: 12.8076, y: 77.5993, color: "#e74c3c" },
+            { id: 4, name: "Narayana Health City", type: "hospital", x: 12.8069, y: 77.5849, color: "#e74c3c" },
+            { id: 5, name: "Columbia Asia Hebbal", type: "hospital", x: 13.0358, y: 77.5970, color: "#e74c3c" },
+            { id: 6, name: "St Johns Medical College", type: "hospital", x: 12.9308, y: 77.6205, color: "#e74c3c" },
+            { id: 7, name: "Victoria Hospital", type: "hospital", x: 12.9636, y: 77.5731, color: "#e74c3c" },
+            { id: 8, name: "Bowring Hospital", type: "hospital", x: 12.9816, y: 77.6030, color: "#e74c3c" },
+            { id: 9, name: "Ramaiah Memorial Hospital", type: "hospital", x: 13.0296, y: 77.5646, color: "#e74c3c" },
+            { id: 10, name: "Aster CMI Hospital", type: "hospital", x: 13.0595, y: 77.5937, color: "#e74c3c" },
+            { id: 11, name: "Sakra World Hospital", type: "hospital", x: 12.9255, y: 77.6846, color: "#e74c3c" },
+            { id: 12, name: "BGS Gleneagles Hospital", type: "hospital", x: 12.9077, y: 77.4856, color: "#e74c3c" },
+            { id: 13, name: "People Tree Hospital", type: "hospital", x: 13.0225, y: 77.5207, color: "#e74c3c" },
+            { id: 14, name: "ESI Hospital Rajajinagar", type: "hospital", x: 12.9915, y: 77.5531, color: "#e74c3c" },
+            { id: 15, name: "KC General Hospital", type: "hospital", x: 12.9966, y: 77.5706, color: "#e74c3c" },
+            { id: 16, name: "Cloudnine Hospital Jayanagar", type: "hospital", x: 12.9302, y: 77.5833, color: "#e74c3c" },
+            { id: 17, name: "NIMHANS", type: "hospital", x: 12.9435, y: 77.5967, color: "#e74c3c" },
+            { id: 18, name: "Vydehi Hospital", type: "hospital", x: 12.9731, y: 77.7273, color: "#e74c3c" },
+            { id: 19, name: "Chinmaya Mission Hospital", type: "hospital", x: 12.9837, y: 77.6605, color: "#e74c3c" },
+            { id: 20, name: "Sapthagiri Hospital", type: "hospital", x: 13.0564, y: 77.5136, color: "#e74c3c" },
 
             // ---------------- PARKS (21–35) ----------------
-            {id:21, name:"Cubbon Park", type:"park", x:12.9762, y:77.5993, color:"#27ae60"},
-            {id:22, name:"Lalbagh Botanical Garden", type:"park", x:12.9507, y:77.5848, color:"#27ae60"},
-            {id:23, name:"Bannerghatta National Park", type:"park", x:12.7972, y:77.5773, color:"#27ae60"},
-            {id:24, name:"Ulsoor Lake", type:"park", x:12.9813, y:77.6081, color:"#27ae60"},
-            {id:25, name:"Sankey Tank", type:"park", x:12.9899, y:77.5615, color:"#27ae60"},
-            {id:26, name:"JP Park", type:"park", x:13.0316, y:77.5610, color:"#27ae60"},
-            {id:27, name:"Bugle Rock Park", type:"park", x:12.9432, y:77.5711, color:"#27ae60"},
-            {id:28, name:"Hesaraghatta Lake", type:"park", x:13.1391, y:77.4782, color:"#27ae60"},
-            {id:29, name:"Agara Lake", type:"park", x:12.9204, y:77.6414, color:"#27ae60"},
-            {id:30, name:"Kaikondrahalli Lake", type:"park", x:12.9116, y:77.6649, color:"#27ae60"},
-            {id:31, name:"Freedom Park", type:"park", x:12.9833, y:77.5865, color:"#27ae60"},
-            {id:32, name:"Lumbini Gardens", type:"park", x:13.0603, y:77.5870, color:"#27ae60"},
-            {id:33, name:"Turahalli Forest", type:"park", x:12.8883, y:77.5634, color:"#27ae60"},
-            {id:34, name:"Yelahanka Lake", type:"park", x:13.1007, y:77.5963, color:"#27ae60"},
-            {id:35, name:"Madiwala Lake", type:"park", x:12.9209, y:77.6173, color:"#27ae60"},
+            { id: 21, name: "Cubbon Park", type: "park", x: 12.9762, y: 77.5993, color: "#27ae60" },
+            { id: 22, name: "Lalbagh Botanical Garden", type: "park", x: 12.9507, y: 77.5848, color: "#27ae60" },
+            { id: 23, name: "Bannerghatta National Park", type: "park", x: 12.7972, y: 77.5773, color: "#27ae60" },
+            { id: 24, name: "Ulsoor Lake", type: "park", x: 12.9813, y: 77.6081, color: "#27ae60" },
+            { id: 25, name: "Sankey Tank", type: "park", x: 12.9899, y: 77.5615, color: "#27ae60" },
+            { id: 26, name: "JP Park", type: "park", x: 13.0316, y: 77.5610, color: "#27ae60" },
+            { id: 27, name: "Bugle Rock Park", type: "park", x: 12.9432, y: 77.5711, color: "#27ae60" },
+            { id: 28, name: "Hesaraghatta Lake", type: "park", x: 13.1391, y: 77.4782, color: "#27ae60" },
+            { id: 29, name: "Agara Lake", type: "park", x: 12.9204, y: 77.6414, color: "#27ae60" },
+            { id: 30, name: "Kaikondrahalli Lake", type: "park", x: 12.9116, y: 77.6649, color: "#27ae60" },
+            { id: 31, name: "Freedom Park", type: "park", x: 12.9833, y: 77.5865, color: "#27ae60" },
+            { id: 32, name: "Lumbini Gardens", type: "park", x: 13.0603, y: 77.5870, color: "#27ae60" },
+            { id: 33, name: "Turahalli Forest", type: "park", x: 12.8883, y: 77.5634, color: "#27ae60" },
+            { id: 34, name: "Yelahanka Lake", type: "park", x: 13.1007, y: 77.5963, color: "#27ae60" },
+            { id: 35, name: "Madiwala Lake", type: "park", x: 12.9209, y: 77.6173, color: "#27ae60" },
 
             // ---------------- CINEMAS (36–50) ----------------
-            {id:36, name:"PVR Orion Mall", type:"cinema", x:13.0107, y:77.5547, color:"#9b59b6"},
-            {id:37, name:"INOX Garuda Mall", type:"cinema", x:12.9716, y:77.6033, color:"#9b59b6"},
-            {id:38, name:"PVR Forum Mall", type:"cinema", x:12.9279, y:77.6271, color:"#9b59b6"},
-            {id:39, name:"Cinepolis Whitefield", type:"cinema", x:12.9950, y:77.7486, color:"#9b59b6"},
-            {id:40, name:"PVR Phoenix MarketCity", type:"cinema", x:12.9698, y:77.6469, color:"#9b59b6"},
-            {id:41, name:"INOX Central Mall", type:"cinema", x:12.9738, y:77.6205, color:"#9b59b6"},
-            {id:42, name:"PVR Vega City", type:"cinema", x:12.9071, y:77.5963, color:"#9b59b6"},
-            {id:43, name:"Cinepolis ETA Mall", type:"cinema", x:13.0214, y:77.5186, color:"#9b59b6"},
-            {id:44, name:"PVR Soul Spirit", type:"cinema", x:12.9158, y:77.6101, color:"#9b59b6"},
-            {id:45, name:"Gopalan Cinemas", type:"cinema", x:12.9982, y:77.7016, color:"#9b59b6"},
-            {id:46, name:"INOX Brookefield", type:"cinema", x:12.9670, y:77.7156, color:"#9b59b6"},
-            {id:47, name:"PVR VR Mall", type:"cinema", x:13.0536, y:77.6044, color:"#9b59b6"},
-            {id:48, name:"Cinepolis Royal Meenakshi", type:"cinema", x:12.8804, y:77.5975, color:"#9b59b6"},
-            {id:49, name:"INOX Forum Value Mall", type:"cinema", x:12.9377, y:77.5283, color:"#9b59b6"},
-            {id:50, name:"PVR MarketSquare", type:"cinema", x:12.9123, y:77.5201, color:"#9b59b6"},
+            { id: 36, name: "PVR Orion Mall", type: "cinema", x: 13.0107, y: 77.5547, color: "#9b59b6" },
+            { id: 37, name: "INOX Garuda Mall", type: "cinema", x: 12.9716, y: 77.6033, color: "#9b59b6" },
+            { id: 38, name: "PVR Forum Mall", type: "cinema", x: 12.9279, y: 77.6271, color: "#9b59b6" },
+            { id: 39, name: "Cinepolis Whitefield", type: "cinema", x: 12.9950, y: 77.7486, color: "#9b59b6" },
+            { id: 40, name: "PVR Phoenix MarketCity", type: "cinema", x: 12.9698, y: 77.6469, color: "#9b59b6" },
+            { id: 41, name: "INOX Central Mall", type: "cinema", x: 12.9738, y: 77.6205, color: "#9b59b6" },
+            { id: 42, name: "PVR Vega City", type: "cinema", x: 12.9071, y: 77.5963, color: "#9b59b6" },
+            { id: 43, name: "Cinepolis ETA Mall", type: "cinema", x: 13.0214, y: 77.5186, color: "#9b59b6" },
+            { id: 44, name: "PVR Soul Spirit", type: "cinema", x: 12.9158, y: 77.6101, color: "#9b59b6" },
+            { id: 45, name: "Gopalan Cinemas", type: "cinema", x: 12.9982, y: 77.7016, color: "#9b59b6" },
+            { id: 46, name: "INOX Brookefield", type: "cinema", x: 12.9670, y: 77.7156, color: "#9b59b6" },
+            { id: 47, name: "PVR VR Mall", type: "cinema", x: 13.0536, y: 77.6044, color: "#9b59b6" },
+            { id: 48, name: "Cinepolis Royal Meenakshi", type: "cinema", x: 12.8804, y: 77.5975, color: "#9b59b6" },
+            { id: 49, name: "INOX Forum Value Mall", type: "cinema", x: 12.9377, y: 77.5283, color: "#9b59b6" },
+            { id: 50, name: "PVR MarketSquare", type: "cinema", x: 12.9123, y: 77.5201, color: "#9b59b6" },
 
             // ---------------- RESTAURANTS (51–65) ----------------
-            {id:51, name:"Toit Indiranagar", type:"restaurant", x:12.9719, y:77.6412, color:"#f39c12"},
-            {id:52, name:"Vidyarthi Bhavan", type:"restaurant", x:12.9426, y:77.5669, color:"#f39c12"},
-            {id:53, name:"MTR Lalbagh", type:"restaurant", x:12.9591, y:77.5857, color:"#f39c12"},
-            {id:54, name:"Koshy's", type:"restaurant", x:12.9716, y:77.5946, color:"#f39c12"},
-            {id:55, name:"The Only Place", type:"restaurant", x:12.9733, y:77.6117, color:"#f39c12"},
-            {id:56, name:"CTR Malleshwaram", type:"restaurant", x:13.0037, y:77.5643, color:"#f39c12"},
-            {id:57, name:"Empire Restaurant", type:"restaurant", x:12.9756, y:77.6044, color:"#f39c12"},
-            {id:58, name:"Truffles Koramangala", type:"restaurant", x:12.9352, y:77.6143, color:"#f39c12"},
-            {id:59, name:"Nagarjuna Residency Road", type:"restaurant", x:12.9723, y:77.5991, color:"#f39c12"},
-            {id:60, name:"Meghana Foods", type:"restaurant", x:12.9355, y:77.6148, color:"#f39c12"},
-            {id:61, name:"Byg Brewski", type:"restaurant", x:12.9955, y:77.7056, color:"#f39c12"},
-            {id:62, name:"AB's Barbecue", type:"restaurant", x:12.9701, y:77.6370, color:"#f39c12"},
-            {id:63, name:"Ironhill Brewery", type:"restaurant", x:12.9111, y:77.6419, color:"#f39c12"},
-            {id:64, name:"Windmills Craftworks", type:"restaurant", x:12.9726, y:77.7294, color:"#f39c12"},
-            {id:65, name:"Rameshwaram Cafe", type:"restaurant", x:12.9704, y:77.5940, color:"#f39c12"},
+            { id: 51, name: "Toit Indiranagar", type: "restaurant", x: 12.9719, y: 77.6412, color: "#f39c12" },
+            { id: 52, name: "Vidyarthi Bhavan", type: "restaurant", x: 12.9426, y: 77.5669, color: "#f39c12" },
+            { id: 53, name: "MTR Lalbagh", type: "restaurant", x: 12.9591, y: 77.5857, color: "#f39c12" },
+            { id: 54, name: "Koshy's", type: "restaurant", x: 12.9716, y: 77.5946, color: "#f39c12" },
+            { id: 55, name: "The Only Place", type: "restaurant", x: 12.9733, y: 77.6117, color: "#f39c12" },
+            { id: 56, name: "CTR Malleshwaram", type: "restaurant", x: 13.0037, y: 77.5643, color: "#f39c12" },
+            { id: 57, name: "Empire Restaurant", type: "restaurant", x: 12.9756, y: 77.6044, color: "#f39c12" },
+            { id: 58, name: "Truffles Koramangala", type: "restaurant", x: 12.9352, y: 77.6143, color: "#f39c12" },
+            { id: 59, name: "Nagarjuna Residency Road", type: "restaurant", x: 12.9723, y: 77.5991, color: "#f39c12" },
+            { id: 60, name: "Meghana Foods", type: "restaurant", x: 12.9355, y: 77.6148, color: "#f39c12" },
+            { id: 61, name: "Byg Brewski", type: "restaurant", x: 12.9955, y: 77.7056, color: "#f39c12" },
+            { id: 62, name: "AB's Barbecue", type: "restaurant", x: 12.9701, y: 77.6370, color: "#f39c12" },
+            { id: 63, name: "Ironhill Brewery", type: "restaurant", x: 12.9111, y: 77.6419, color: "#f39c12" },
+            { id: 64, name: "Windmills Craftworks", type: "restaurant", x: 12.9726, y: 77.7294, color: "#f39c12" },
+            { id: 65, name: "Rameshwaram Cafe", type: "restaurant", x: 12.9704, y: 77.5940, color: "#f39c12" },
 
             // ---------------- METRO STATIONS (66–100) ----------------
-            {id:66, name:"MG Road Metro", type:"metro", x:12.9758, y:77.6033, color:"#34495e"},
-            {id:67, name:"Indiranagar Metro", type:"metro", x:12.9784, y:77.6387, color:"#34495e"},
-            {id:68, name:"Majestic Metro", type:"metro", x:12.9767, y:77.5713, color:"#34495e"},
-            {id:69, name:"Yeshwantpur Metro", type:"metro", x:13.0216, y:77.5544, color:"#34495e"},
-            {id:70, name:"Rajajinagar Metro", type:"metro", x:12.9918, y:77.5546, color:"#34495e"},
-            {id:71, name:"Jayanagar Metro", type:"metro", x:12.9304, y:77.5802, color:"#34495e"},
-            {id:72, name:"Banashankari Metro", type:"metro", x:12.9157, y:77.5739, color:"#34495e"},
-            {id:73, name:"Nagasandra Metro", type:"metro", x:13.0452, y:77.5004, color:"#34495e"},
-            {id:74, name:"Peenya Metro", type:"metro", x:13.0324, y:77.5258, color:"#34495e"},
-            {id:75, name:"KR Market Metro", type:"metro", x:12.9634, y:77.5786, color:"#34495e"},
-            {id:76, name:"Vijayanagar Metro", type:"metro", x:12.9707, y:77.5371, color:"#34495e"},
-            {id:77, name:"Baiyappanahalli Metro", type:"metro", x:12.9902, y:77.6522, color:"#34495e"},
-            {id:78, name:"Whitefield Kadugodi Metro", type:"metro", x:12.9964, y:77.7597, color:"#34495e"},
-            {id:79, name:"Garudacharpalya Metro", type:"metro", x:12.9851, y:77.7125, color:"#34495e"},
-            {id:80, name:"Halasuru Metro", type:"metro", x:12.9776, y:77.6186, color:"#34495e"},
-            {id:81, name:"Trinity Metro", type:"metro", x:12.9749, y:77.6196, color:"#34495e"},
-            {id:82, name:"Cubbon Park Metro", type:"metro", x:12.9766, y:77.5933, color:"#34495e"},
-            {id:83, name:"Sir M Visvesvaraya Metro", type:"metro", x:12.9730, y:77.5930, color:"#34495e"},
-            {id:84, name:"Vidhana Soudha Metro", type:"metro", x:12.9795, y:77.5907, color:"#34495e"},
-            {id:85, name:"Attiguppe Metro", type:"metro", x:12.9574, y:77.5286, color:"#34495e"},
-            {id:86, name:"Deepanjali Nagar Metro", type:"metro", x:12.9550, y:77.5316, color:"#34495e"},
-            {id:87, name:"Magadi Road Metro", type:"metro", x:12.9750, y:77.5444, color:"#34495e"},
-            {id:88, name:"Sandal Soap Factory Metro", type:"metro", x:13.0075, y:77.5408, color:"#34495e"},
-            {id:89, name:"Dasarahalli Metro", type:"metro", x:13.0412, y:77.5125, color:"#34495e"},
-            {id:90, name:"Yelachenahalli Metro", type:"metro", x:12.8914, y:77.5665, color:"#34495e"},
-            {id:91, name:"Konanakunte Cross Metro", type:"metro", x:12.8847, y:77.5730, color:"#34495e"},
-            {id:92, name:"Vajarahalli Metro", type:"metro", x:12.8753, y:77.5647, color:"#34495e"},
-            {id:93, name:"Thalaghattapura Metro", type:"metro", x:12.8691, y:77.5612, color:"#34495e"},
-            {id:94, name:"Silk Institute Metro", type:"metro", x:12.8615, y:77.5577, color:"#34495e"},
-            {id:95, name:"Nadaprabhu Kempegowda Station", type:"metro", x:12.9766, y:77.5713, color:"#34495e"},
-            {id:96, name:"Kengeri Metro", type:"metro", x:12.9127, y:77.4834, color:"#34495e"},
-            {id:97, name:"Pattanagere Metro", type:"metro", x:12.9234, y:77.5122, color:"#34495e"},
-            {id:98, name:"RV Road Metro", type:"metro", x:12.9219, y:77.5800, color:"#34495e"},
-            {id:99, name:"BTM Layout Metro", type:"metro", x:12.9166, y:77.6101, color:"#34495e"},
-            {id:100, name:"Jalahalli Metro", type:"metro", x:13.0353, y:77.5442, color:"#34495e"}
+            { id: 66, name: "MG Road Metro", type: "metro", x: 12.9758, y: 77.6033, color: "#34495e" },
+            { id: 67, name: "Indiranagar Metro", type: "metro", x: 12.9784, y: 77.6387, color: "#34495e" },
+            { id: 68, name: "Majestic Metro", type: "metro", x: 12.9767, y: 77.5713, color: "#34495e" },
+            { id: 69, name: "Yeshwantpur Metro", type: "metro", x: 13.0216, y: 77.5544, color: "#34495e" },
+            { id: 70, name: "Rajajinagar Metro", type: "metro", x: 12.9918, y: 77.5546, color: "#34495e" },
+            { id: 71, name: "Jayanagar Metro", type: "metro", x: 12.9304, y: 77.5802, color: "#34495e" },
+            { id: 72, name: "Banashankari Metro", type: "metro", x: 12.9157, y: 77.5739, color: "#34495e" },
+            { id: 73, name: "Nagasandra Metro", type: "metro", x: 13.0452, y: 77.5004, color: "#34495e" },
+            { id: 74, name: "Peenya Metro", type: "metro", x: 13.0324, y: 77.5258, color: "#34495e" },
+            { id: 75, name: "KR Market Metro", type: "metro", x: 12.9634, y: 77.5786, color: "#34495e" },
+            { id: 76, name: "Vijayanagar Metro", type: "metro", x: 12.9707, y: 77.5371, color: "#34495e" },
+            { id: 77, name: "Baiyappanahalli Metro", type: "metro", x: 12.9902, y: 77.6522, color: "#34495e" },
+            { id: 78, name: "Whitefield Kadugodi Metro", type: "metro", x: 12.9964, y: 77.7597, color: "#34495e" },
+            { id: 79, name: "Garudacharpalya Metro", type: "metro", x: 12.9851, y: 77.7125, color: "#34495e" },
+            { id: 80, name: "Halasuru Metro", type: "metro", x: 12.9776, y: 77.6186, color: "#34495e" },
+            { id: 81, name: "Trinity Metro", type: "metro", x: 12.9749, y: 77.6196, color: "#34495e" },
+            { id: 82, name: "Cubbon Park Metro", type: "metro", x: 12.9766, y: 77.5933, color: "#34495e" },
+            { id: 83, name: "Sir M Visvesvaraya Metro", type: "metro", x: 12.9730, y: 77.5930, color: "#34495e" },
+            { id: 84, name: "Vidhana Soudha Metro", type: "metro", x: 12.9795, y: 77.5907, color: "#34495e" },
+            { id: 85, name: "Attiguppe Metro", type: "metro", x: 12.9574, y: 77.5286, color: "#34495e" },
+            { id: 86, name: "Deepanjali Nagar Metro", type: "metro", x: 12.9550, y: 77.5316, color: "#34495e" },
+            { id: 87, name: "Magadi Road Metro", type: "metro", x: 12.9750, y: 77.5444, color: "#34495e" },
+            { id: 88, name: "Sandal Soap Factory Metro", type: "metro", x: 13.0075, y: 77.5408, color: "#34495e" },
+            { id: 89, name: "Dasarahalli Metro", type: "metro", x: 13.0412, y: 77.5125, color: "#34495e" },
+            { id: 90, name: "Yelachenahalli Metro", type: "metro", x: 12.8914, y: 77.5665, color: "#34495e" },
+            { id: 91, name: "Konanakunte Cross Metro", type: "metro", x: 12.8847, y: 77.5730, color: "#34495e" },
+            { id: 92, name: "Vajarahalli Metro", type: "metro", x: 12.8753, y: 77.5647, color: "#34495e" },
+            { id: 93, name: "Thalaghattapura Metro", type: "metro", x: 12.8691, y: 77.5612, color: "#34495e" },
+            { id: 94, name: "Silk Institute Metro", type: "metro", x: 12.8615, y: 77.5577, color: "#34495e" },
+            { id: 95, name: "Nadaprabhu Kempegowda Station", type: "metro", x: 12.9766, y: 77.5713, color: "#34495e" },
+            { id: 96, name: "Kengeri Metro", type: "metro", x: 12.9127, y: 77.4834, color: "#34495e" },
+            { id: 97, name: "Pattanagere Metro", type: "metro", x: 12.9234, y: 77.5122, color: "#34495e" },
+            { id: 98, name: "RV Road Metro", type: "metro", x: 12.9219, y: 77.5800, color: "#34495e" },
+            { id: 99, name: "BTM Layout Metro", type: "metro", x: 12.9166, y: 77.6101, color: "#34495e" },
+            { id: 100, name: "Jalahalli Metro", type: "metro", x: 13.0353, y: 77.5442, color: "#34495e" }
         ];
 
         // --- MAP UPGRADE START ---
@@ -741,10 +748,10 @@
         let selectionMarker = null;  // Clear marker for clicked location
         let distanceLabel = null;    // Label for distance on line
         let connectionLine = null;
-        
+
         // Discovery Mode: Track which venues have been found
         let discoveredVenues = new Set();
-        
+
         // Coordinate System Mapping
         // Internal Grid: 800 (w) x 500 (h)
         // Map Area: Central Bangalore
@@ -759,7 +766,7 @@
 
         function toLatLng(x, y) {
             return [
-                CENTER_LAT - ((y - CENTER_Y) * SCALE_Y), 
+                CENTER_LAT - ((y - CENTER_Y) * SCALE_Y),
                 CENTER_LNG + ((x - CENTER_X) * SCALE_X)
             ];
         }
@@ -776,10 +783,10 @@
             const R = 6371; // Earth radius in km
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
         // --- MAP UPGRADE END ---
@@ -892,19 +899,19 @@
             } catch (error) {
                 // console.error("Search failed:", error);
                 if (statusEl) statusEl.innerHTML = '<span style="color:#e74c3c">Disconnected (Using JS Fallback)</span>';
-                
+
                 // Fallback JS logic for demo purposes if backend offline
                 // DO NOT MODIFY BACKEND LOGIC constraint respected, but providing fallback for UI test
                 const filtered = venues.filter(v => type === 'all' || v.type === type);
                 if (filtered.length === 0) return { success: false };
-                
+
                 let min = Infinity;
                 let best = null;
                 filtered.forEach(v => {
-                    const dist = Math.sqrt((v.x - x)**2 + (v.y - y)**2);
+                    const dist = Math.sqrt((v.x - x) ** 2 + (v.y - y) ** 2);
                     if (dist < min) { min = dist; best = v; }
                 });
-                
+
                 return { success: true, result: best, backend: 'javascript (fallback)' };
             }
         }
@@ -920,14 +927,18 @@
             const searches = data.searches || 'N/A';
             const backendUsed = data.backend || 'javascript';
 
+            // Get REAL coordinates for distance calculation in KM
+            const venueReal = venues.find(v => v.id === venue.id);
+            if (!venueReal) return;
+
 
 
             searchResults.innerHTML = `
                 <div class="venue-item nearest">
                     <h3>Nearest ${type !== 'all' ? type : 'Entertainment'} Venue:</h3>
                     <p><strong>${venue.name}</strong> (${venue.type})</p>
-                    <p>Distance: ${calculateDistance(point.x, point.y, venue.x, venue.y).toFixed(3)} km</p>
-                    <p>Coordinates: (${venue.x.toFixed(4)}, ${venue.y.toFixed(4)})</p>
+                    <p>Distance: ${calculateDistance(point.lat, point.lng, venueReal.x, venueReal.y).toFixed(3)} km</p>
+                    <p>Coordinates: (${venueReal.x.toFixed(4)}, ${venueReal.y.toFixed(4)})</p>
                     <p>Algorithm: ${algorithm === 'kdtree' ? 'K-D Tree Search' : 'Brute Force'}</p>
                     <p>Search operations: ${searches}</p>
                     <p>Backend: ${backendUsed === 'c' ? 'C (Compiled)' : 'JavaScript'}</p>
@@ -945,7 +956,7 @@
             const otherVenues = venues
                 .filter(v => v.id !== venue.id && (type === 'all' || v.type === type))
                 .map(v => {
-                    const dist = calculateDistance(point.x, point.y, v.x, v.y);
+                    const dist = calculateDistance(point.lat, point.lng, v.x, v.y);
                     return { ...v, distance: dist };
                 })
                 .sort((a, b) => a.distance - b.distance)
@@ -968,23 +979,23 @@
             if (!map) {
                 // Create canvas renderer for high performance
                 canvasRenderer = L.canvas();
-                
+
                 // Initialize map with ALL performance optimizations
                 map = L.map('map', {
                     // Canvas rendering for performance
                     preferCanvas: true,
                     renderer: canvasRenderer,
-                    
+
                     // Disable ALL animations
                     zoomAnimation: false,
                     fadeAnimation: false,
                     markerZoomAnimation: false,
                     inertia: false,
                     inertiaDeceleration: 0,
-                    
+
                     // Enable only dragging
                     dragging: true,
-                    
+
                     // Disable ALL zoom interactions
                     scrollWheelZoom: false,
                     doubleClickZoom: false,
@@ -993,7 +1004,7 @@
                     keyboard: false,
                     zoomControl: true  // Enable zoom buttons (+ / −) ONLY
                 });
-                
+
                 // Set initial view (ONLY time we set view)
                 map.setView([12.9716, 77.5946], 13);
 
@@ -1017,16 +1028,18 @@
             if (selectionMarker) map.removeLayer(selectionMarker);  // Clear old selection marker
             if (distanceLabel) map.removeLayer(distanceLabel);      // Clear old distance label
 
-            // Draw venues (Discovery Mode: only show discovered venues)
+            // Draw venues (Discovery Mode disabled for debugging)
             venues.forEach(venue => {
-                // Skip if venue hasn't been discovered yet
+                // Discovery mode filtering disabled as requested
+                /*
                 if (!discoveredVenues.has(venue.id)) {
                     return;
                 }
-                
+                */
+
                 // Venues now use real lat/lng as x/y
                 const latLng = [venue.x, venue.y];
-                
+
                 // Custom colored icon based on venue color
                 const iconHtml = `<div style="
                     background-color: ${venue.color};
@@ -1044,21 +1057,23 @@
                     iconAnchor: [8, 8] // Center
                 });
 
-                const marker = L.marker(latLng, { 
+                const marker = L.marker(latLng, {
                     icon: icon,
                     renderer: canvasRenderer,  // Use canvas renderer
                     interactive: false         // Disable interaction
                 })
                     .bindPopup(`<b>${venue.name}</b><br>${venue.type}`)
                     .addTo(map);
-                
+
                 mapMarkers.push(marker);
             });
 
             // Draw Selection Marker (shows exact click location)
             if (userPoint) {
-                const sLatLng = [userPoint.x, userPoint.y];
-                
+                // IMPORTANT: Leaflet expects [lat, lng], but userPoint holds grid [x, y]
+                // Convert back to Real Coordinates for map rendering
+                const sLatLng = toLatLng(userPoint.x, userPoint.y);
+
                 // Clear, visible marker at click location
                 selectionMarker = L.circleMarker(sLatLng, {
                     radius: 6,
@@ -1074,7 +1089,7 @@
 
             // Draw User Point
             if (userPoint) {
-                const uLatLng = [userPoint.x, userPoint.y];
+                const uLatLng = toLatLng(userPoint.x, userPoint.y);
                 const uIcon = L.divIcon({
                     className: 'user-icon',
                     html: `<div style="
@@ -1089,9 +1104,9 @@
                     iconSize: [20, 20],
                     iconAnchor: [10, 10]
                 });
-                
+
                 userMarker = L.marker(uLatLng, {
-                    icon: uIcon, 
+                    icon: uIcon,
                     zIndexOffset: 1000,
                     renderer: canvasRenderer,  // Use canvas renderer
                     interactive: false         // Disable interaction
@@ -1107,16 +1122,14 @@
                 const vy = parseFloat(nearestVenue.y);
 
                 if (!isNaN(vx) && !isNaN(vy)) {
-                    // FORCE: Lat=x, Lng=y (Strict adherence)
-                    // KD-Tree uses normalized coordinates, Leaflet uses real-world coordinates
-                    // We now ensure nearestVenue.x/y holds REAL coordinates from frontend data
-                    
-                    const uLL = [ux, uy];
-                    const nLL = [vx, vy];
-                    
+                    // FORCE: Use translation to Lat/Lng for Leaflet
+                    const uLL = toLatLng(ux, uy);
+                    const nLL = toLatLng(vx, vy);
+
                     // Debug log to verify coordinates being drawn
-                    console.log("Drawing Line -> User:", uLL, "Nearest:", nLL);
-                    
+                    console.log("Drawing Line (Grid) -> User:", { ux, uy }, "Nearest:", { vx, vy });
+                    console.log("Drawing Line (Lat/Lng) -> User:", uLL, "Nearest:", nLL);
+
                     connectionLine = L.polyline([uLL, nLL], {
                         color: '#4CAF50',
                         weight: 4,
@@ -1127,11 +1140,11 @@
                     }).addTo(map);
 
                     // Add Distance Label at Midpoint (Non-interactive)
-                    const midLat = (ux + vx) / 2;
-                    const midLng = (uy + vy) / 2;
+                    const midLat = (uLL[0] + nLL[0]) / 2;
+                    const midLng = (uLL[1] + nLL[1]) / 2;
                     // Haversine distance
-                    const distVal = calculateDistance(ux, uy, vx, vy).toFixed(2);
-                    
+                    const distVal = calculateDistance(uLL[0], uLL[1], nLL[0], nLL[1]).toFixed(2);
+
                     if (distanceLabel) map.removeLayer(distanceLabel);
                     distanceLabel = L.marker([midLat, midLng], {
                         icon: L.divIcon({
@@ -1155,8 +1168,8 @@
                 }
             }
 
-                
-                // NO auto-zoom - map stays at user's zoom level
+
+            // NO auto-zoom - map stays at user's zoom level
         }
 
         // Handle map click
@@ -1164,9 +1177,10 @@
             let x, y;
 
             if (event.latlng) {
-                // Use lat/lng directly as x/y (venues now use real coordinates)
-                x = event.latlng.lat;
-                y = event.latlng.lng;
+                // Use toXY helper to convert Lat/Lng to grid coordinates
+                const coords = toXY(event.latlng.lat, event.latlng.lng);
+                x = coords.x;
+                y = coords.y;
             } else {
                 // Fallback/Legacy
                 return;
@@ -1180,7 +1194,7 @@
             userPoint = { x, y };
             const type = venueTypeSelect.value;
             // Defaulting algorithm to kdtree as per user constraints (or 'kdtree')
-            const algorithm = 'kdtree'; 
+            const algorithm = 'kdtree';
 
             try {
                 // Search for nearest venue
@@ -1192,30 +1206,21 @@
 
                     // Ensure Leaflet rendering ALWAYS uses REAL coordinates
                     // KD-Tree uses normalized coordinates, Leaflet uses real-world coordinates
-                    // Overwrite nearestVenue properties with Guaranteed Real Coordinates from frontend dataset
-                    const real = venues.find(v => v.id === nearestVenue.id);
-                    if (real) {
-                        nearestVenue.x = real.x;
-                        nearestVenue.y = real.y;
-                        nearestVenue.name = real.name;
-                        nearestVenue.type = real.type;
-                        // data.result is also updated since it's a reference
-                    }
-                    
-                    // Verify correct coordinate mapping
-                    console.log("CLICKED:", {lat: x, lng: y});
-                    console.log("NEAREST FOUND:", {
-                        id: nearestVenue.id,
-                        name: nearestVenue.name,
-                        lat: nearestVenue.x, 
-                        lng: nearestVenue.y
-                    });
+                    // Overwrite nearestVenue properties with Grid Coordinates from Backend
+                    // But for updateSearchResults, we pass the point (real lat/lng)
+
+                    const markerPoint = {
+                        lat: event.latlng.lat,
+                        lng: event.latlng.lng,
+                        gridX: x,
+                        gridY: y
+                    };
 
                     // Discovery Mode: Mark this venue as discovered
                     if (nearestVenue && nearestVenue.id) {
                         discoveredVenues.add(nearestVenue.id);
                     }
-                    updateSearchResults(userPoint, data, algorithm, type);
+                    updateSearchResults(markerPoint, data, algorithm, type);
                 } else {
                     // If search fails, ensure no stale nearest venue is shown
                     nearestVenue = null;

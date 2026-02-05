@@ -191,8 +191,28 @@ void free_kdtree(KDNode *node) {
 void initialize_sample_venues() {
     venue_count = 100;
     
+    // Coordinate conversion constants (aligned with frontend)
+    const float CENTER_LAT = 12.9716;
+    const float CENTER_LNG = 77.5946;
+    const float CENTER_X = 400.0;
+    const float CENTER_Y = 250.0;
+    const float SCALE_X = 0.0001;
+    const float SCALE_Y = 0.0001;
+
     // Sample venues data (Real Bangalore Locations)
     Venue sample_venues[100] = {
+        // ... (data remains same)
+        {1,"Manipal Hospital Whitefield","hospital",12.9698,77.7500,"#e74c3c"},
+        {2,"Apollo Hospital Bannerghatta","hospital",12.8449,77.6034,"#e74c3c"},
+        // ... (truncated for brevity, but I will map them in logic below)
+    };
+
+    // Note: The sample_venues array initialized above has lat/lng in x/y fields.
+    // We will now convert them to grid coordinates if needed, 
+    // OR just initialize them directly with converted values.
+    
+    // For this implementation, I will perform the conversion loop.
+    Venue raw_data[100] = {
         // ---------------- HOSPITALS (1–20) ----------------
         {1,"Manipal Hospital Whitefield","hospital",12.9698,77.7500,"#e74c3c"},
         {2,"Apollo Hospital Bannerghatta","hospital",12.8449,77.6034,"#e74c3c"},
@@ -304,9 +324,15 @@ void initialize_sample_venues() {
         {100,"Jalahalli Metro","metro",13.0353,77.5442,"#34495e"}
     };
     
-    // Copy sample venues to global array
+    // Convert Lat/Lng to Grid Coordinates for the K-D Tree
     for (int i = 0; i < venue_count; i++) {
-        venues[i] = sample_venues[i];
+        float raw_lat = raw_data[i].x;
+        float raw_lng = raw_data[i].y;
+        
+        // Internal Grid mapping
+        venues[i] = raw_data[i];
+        venues[i].x = ((raw_lng - CENTER_LNG) / SCALE_X) + CENTER_X;
+        venues[i].y = ((CENTER_LAT - raw_lat) / SCALE_Y) + CENTER_Y;
     }
 }
 
