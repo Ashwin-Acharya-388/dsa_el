@@ -379,15 +379,153 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* Favorites UI Styles */
+        .heart-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            margin-left: 10px;
+            transition: transform 0.2s;
+        }
+
+        .heart-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .heart-btn.favorited {
+            color: #ff4444;
+            text-shadow: 0 0 3px rgba(255, 68, 68, 0.5);
+        }
+
+        .heart-btn:not(.favorited) {
+            color: #a5a3ff;
+        }
+
+        .favorites-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: #1e293b;
+            border-left: 2px solid #334155;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            z-index: 1000;
+            transition: right 0.3s ease;
+            padding: 20px;
+        }
+
+        .favorites-panel.active {
+            right: 0;
+        }
+
+        .favorites-panel h2 {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #6c63ff;
+            padding-bottom: 10px;
+        }
+
+        .close-favorites {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a5a3ff;
+        }
+
+        .favorite-item {
+            background: rgba(108, 99, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #6c63ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .favorite-item:hover {
+            background: rgba(108, 99, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .favorite-item h3 {
+            margin: 0 0 5px 0;
+            color: #f8fafc;
+        }
+
+        .favorite-item p {
+            margin: 3px 0;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .fav-count {
+            background: #6c63ff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .nearby-favorites-list {
+            background: rgba(76, 175, 80, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .nearby-favorites-list h4 {
+            margin-top: 0;
+            color: #27ae60;
+        }
+
+        .nearby-fav-item {
+            background: rgba(108, 99, 255, 0.05);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .favorite-btn-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body>
+    <!-- Favorites Panel -->
+    <div id="favoritesPanel" class="favorites-panel">
+        <button class="close-favorites" id="closeFavoritesBtn">✕</button>
+        <h2>❤️ My Favorite Venues</h2>
+        <div id="favoritesList"></div>
+    </div>
+
     <div class="container">
         <header>
             <h1>Venue Finder</h1>
+            <button class="favorite-btn-header" id="viewFavoritesBtn" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #a5a3ff; display: flex; align-items: center; gap: 10px; padding: 8px 15px; border-radius: 8px; transition: all 0.3s;">
+                ❤️ View Favorites <span id="favCount" style="background: #6c63ff; color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.8rem;">0</span>
+            </button>
         </header>
 
         <div class="content">
@@ -919,12 +1057,16 @@
             const venue = data.result;
             const searches = data.searches || 'N/A';
             const backendUsed = data.backend || 'javascript';
-
-
+            const isFavorite = favoritesData[venue.id];
 
             searchResults.innerHTML = `
                 <div class="venue-item nearest">
-                    <h3>Nearest ${type !== 'all' ? type : 'Entertainment'} Venue:</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Nearest ${type !== 'all' ? type : 'Entertainment'} Venue:</h3>
+                        <button class="heart-btn ${isFavorite ? 'favorited' : ''}" onclick="toggleFavorite(${venue.id}); event.stopPropagation();" style="margin: 0;">
+                            ${isFavorite ? '❤️' : '🤍'}
+                        </button>
+                    </div>
                     <p><strong>${venue.name}</strong> (${venue.type})</p>
                     <p>Distance: ${calculateDistance(point.x, point.y, venue.x, venue.y).toFixed(3)} km</p>
                     <p>Coordinates: (${venue.x.toFixed(4)}, ${venue.y.toFixed(4)})</p>
@@ -1017,24 +1159,21 @@
             if (selectionMarker) map.removeLayer(selectionMarker);  // Clear old selection marker
             if (distanceLabel) map.removeLayer(distanceLabel);      // Clear old distance label
 
-            // Draw venues (Discovery Mode: only show discovered venues)
+            // Draw venues (show all venues with their favorite status highlighted)
             venues.forEach(venue => {
-                // Skip if venue hasn't been discovered yet
-                if (!discoveredVenues.has(venue.id)) {
-                    return;
-                }
-                
                 // Venues now use real lat/lng as x/y
                 const latLng = [venue.x, venue.y];
                 
                 // Custom colored icon based on venue color
+                // Add heart indicator for favorites
+                const isFavorite = favoritesData[venue.id];
                 const iconHtml = `<div style="
                     background-color: ${venue.color};
                     width: 14px;
                     height: 14px;
                     border-radius: 50%;
-                    border: 2px solid white;
-                    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                    border: ${isFavorite ? '3px solid #ff4444' : '2px solid white'};
+                    box-shadow: ${isFavorite ? '0 0 8px rgba(255, 68, 68, 0.7)' : '0 0 5px rgba(0,0,0,0.5)'};
                 "></div>`;
 
                 const icon = L.divIcon({
@@ -1211,7 +1350,7 @@
                         lng: nearestVenue.y
                     });
 
-                    // Discovery Mode: Mark this venue as discovered
+                    // Mark this venue as discovered (show it on map)
                     if (nearestVenue && nearestVenue.id) {
                         discoveredVenues.add(nearestVenue.id);
                     }
@@ -1242,16 +1381,206 @@
             // Map stays at current position - no auto-reset
         });
 
+        // ====== FAVORITES FEATURE ======
+        let favoritesData = {}; // Local cache of favorite status
+
+        // Toggle favorite status
+        async function toggleFavorite(venueId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/toggle-favorite?id=${venueId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update local cache
+                    favoritesData[venueId] = data.is_favorite;
+                    
+                    // Update UI
+                    updateFavoritesUI();
+                    drawMap(); // Redraw to show heart icons
+                    
+                    return data.is_favorite;
+                }
+            } catch (error) {
+                console.error("Error toggling favorite:", error);
+                // Fallback: toggle locally if backend fails
+                favoritesData[venueId] = !favoritesData[venueId];
+                updateFavoritesUI();
+                drawMap();
+            }
+        }
+
+        // Get all favorite venues
+        async function loadFavorites() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/favorites`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear local cache
+                    favoritesData = {};
+                    
+                    // Build favorites map
+                    data.favorites.forEach(fav => {
+                        favoritesData[fav.id] = true;
+                    });
+                    
+                    updateFavoritesUI();
+                    return data.favorites;
+                }
+            } catch (error) {
+                console.error("Error loading favorites:", error);
+            }
+            return [];
+        }
+
+        // Get nearby favorite venues
+        async function getNearbyFavorites(lat, lng, radius = 0.05) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/nearby-favorites?x=${lat}&y=${lng}&radius=${radius}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    return data.nearby_favorites;
+                }
+            } catch (error) {
+                console.error("Error getting nearby favorites:", error);
+            }
+            return [];
+        }
+
+        // Update favorites UI
+        function updateFavoritesUI() {
+            // Update favorite count in header
+            const favCount = Object.values(favoritesData).filter(v => v).length;
+            document.getElementById('favCount').textContent = favCount;
+
+            // Update favorites list panel
+            const favoritesList = document.getElementById('favoritesList');
+            const favVenues = venues.filter(v => favoritesData[v.id]);
+            
+            if (favVenues.length === 0) {
+                favoritesList.innerHTML = '<p style="color: #a5a3ff; margin-top: 20px;">No favorites yet. Click the heart icon next to a venue to add it!</p>';
+                return;
+            }
+
+            let html = '';
+            favVenues.forEach(venue => {
+                html += `
+                    <div class="favorite-item" onclick="goToFavorite(${venue.id})">
+                        <h3>${venue.name}</h3>
+                        <p><strong>${venue.type.charAt(0).toUpperCase() + venue.type.slice(1)}</strong></p>
+                        <p>Coordinates: (${venue.x.toFixed(4)}, ${venue.y.toFixed(4)})</p>
+                        <button class="heart-btn favorited" onclick="event.stopPropagation(); toggleFavorite(${venue.id})">❤️</button>
+                    </div>
+                `;
+            });
+            
+            favoritesList.innerHTML = html;
+        }
+
+        // Navigate to a favorite venue
+        async function goToFavorite(venueId) {
+            const venue = venues.find(v => v.id === venueId);
+            if (!venue) return;
+            
+            // Set user point to the favorite venue
+            userPoint = { x: venue.x, y: venue.y };
+            nearestVenue = venue;
+            
+            // Update search results to show the favorite venue
+            let html = `
+                <div class="venue-item nearest">
+                    <h3>📍 ${venue.name}</h3>
+                    <p><strong>${venue.type}</strong></p>
+                    <p>Coordinates: (${venue.x.toFixed(4)}, ${venue.y.toFixed(4)})</p>
+                    <button class="heart-btn favorited" onclick="event.stopPropagation(); toggleFavorite(${venue.id})">❤️ Remove from Favorites</button>
+                </div>
+            `;
+            
+            // Get ALL nearby venues (both favorited and non-favorited)
+            const allNearby = venues
+                .filter(v => v.id !== venue.id)  // Exclude the current venue
+                .map(v => {
+                    const dist = calculateDistance(venue.x, venue.y, v.x, v.y);
+                    return { ...v, distance: dist };
+                })
+                .filter(v => v.distance <= 5)  // Within 5 km radius
+                .sort((a, b) => a.distance - b.distance);
+            
+            // Separate into favorited and non-favorited
+            const favoritedNearby = allNearby.filter(v => favoritesData[v.id]).slice(0, 5);
+            const nonFavoritedNearby = allNearby.filter(v => !favoritesData[v.id]).slice(0, 5);
+            
+            // Show favorited venues section
+            if (favoritedNearby.length > 0) {
+                html += `
+                    <div class="nearby-favorites-list">
+                        <h4>❤️ Other Favorite Venues Nearby</h4>
+                `;
+                favoritedNearby.forEach(v => {
+                    html += `
+                        <div class="nearby-fav-item">
+                            <strong>${v.name}</strong> (${v.type})
+                            <br><small>Distance: ${v.distance.toFixed(3)} km</small>
+                            <br><small>Coordinates: (${v.x.toFixed(4)}, ${v.y.toFixed(4)})</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Show non-favorited venues section
+            if (nonFavoritedNearby.length > 0) {
+                html += `
+                    <div class="nearby-favorites-list" style="border-left-color: #a5a3ff;">
+                        <h4>📍 Other Venues Nearby</h4>
+                `;
+                nonFavoritedNearby.forEach(v => {
+                    html += `
+                        <div class="nearby-fav-item">
+                            <strong>${v.name}</strong> (${v.type})
+                            <br><small>Distance: ${v.distance.toFixed(3)} km</small>
+                            <br><small>Coordinates: (${v.x.toFixed(4)}, ${v.y.toFixed(4)})</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            if (allNearby.length === 0) {
+                html += '<p style="color: #a5a3ff; margin-top: 15px;">No other venues nearby.</p>';
+            }
+            
+            searchResults.innerHTML = html;
+            drawMap();
+            
+            // Close favorites panel
+            document.getElementById('favoritesPanel').classList.remove('active');
+        }
+
+        // Open/close favorites panel
+        document.getElementById('viewFavoritesBtn').addEventListener('click', () => {
+            document.getElementById('favoritesPanel').classList.add('active');
+        });
+
+        document.getElementById('closeFavoritesBtn').addEventListener('click', () => {
+            document.getElementById('favoritesPanel').classList.remove('active');
+        });
+
         // Initialize
         async function initialize() {
             // Test backend connection on startup
             await testBackendConnection();
+
+            // Load favorites from backend
+            await loadFavorites();
 
             // Draw initial map
             drawMap();
 
             console.log("2D Tree Nearest Neighbor Search initialized");
             console.log(`Total venues: ${venues.length}`);
+            console.log(`Favorites loaded: ${Object.values(favoritesData).filter(v => v).length}`);
         }
 
         // Start the application

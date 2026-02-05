@@ -13,6 +13,7 @@ typedef struct {
     float x;
     float y;
     char color[20];
+    int is_favorite;   // 0 = no, 1 = yes
 } Venue;
 
 // Structure for K-D Tree node
@@ -38,5 +39,13 @@ float calculate_distance(float x1, float y1, float x2, float y2);
 Venue brute_force_nearest(float x, float y, char *type, int *search_count);
 void print_tree(KDNode *node, int level);
 void initialize_sample_venues();
+
+// Favorite functions
+void toggle_favorite(int venue_id);
+void get_favorites_list(Venue result[MAX_VENUES], int *count);
+void get_nearby_favorites(float x, float y, float radius, Venue result[MAX_VENUES], int *count);
+void save_favorites_to_file();
+void load_favorites_from_file();
+
 
 #endif // KDTREE_H

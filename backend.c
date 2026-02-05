@@ -307,6 +307,97 @@ void initialize_sample_venues() {
     // Copy sample venues to global array
     for (int i = 0; i < venue_count; i++) {
         venues[i] = sample_venues[i];
+        venues[i].is_favorite = 0;  // Initialize as not favorited
+    }
+    
+    // Load favorites from file if it exists
+    load_favorites_from_file();
+}
+
+// Toggle favorite status for a venue
+void toggle_favorite(int venue_id) {
+    for (int i = 0; i < venue_count; i++) {
+        if (venues[i].id == venue_id) {
+            venues[i].is_favorite = !venues[i].is_favorite;
+            save_favorites_to_file();
+            return;
+        }
+    }
+}
+
+// Get all favorite venues
+void get_favorites_list(Venue result[MAX_VENUES], int *count) {
+    *count = 0;
+    for (int i = 0; i < venue_count; i++) {
+        if (venues[i].is_favorite) {
+            result[*count] = venues[i];
+            (*count)++;
+        }
+    }
+}
+
+// Get nearby favorite venues using K-D Tree
+void get_nearby_favorites(float x, float y, float radius, Venue result[MAX_VENUES], int *count) {
+    *count = 0;
+    for (int i = 0; i < venue_count; i++) {
+        if (venues[i].is_favorite) {
+            float dist = calculate_distance(x, y, venues[i].x, venues[i].y);
+            if (dist <= radius) {
+                result[*count] = venues[i];
+                (*count)++;
+            }
+        }
+    }
+}
+
+// Save favorites to JSON file
+void save_favorites_to_file() {
+    FILE *file = fopen("favorites.json", "w");
+    if (!file) return;
+    
+    fprintf(file, "{\"favorites\": [");
+    int first = 1;
+    
+    for (int i = 0; i < venue_count; i++) {
+        if (venues[i].is_favorite) {
+            if (!first) fprintf(file, ",");
+            fprintf(file, "{\"id\": %d, \"name\": \"%s\", \"type\": \"%s\", \"x\": %.4f, \"y\": %.4f}",
+                    venues[i].id, venues[i].name, venues[i].type, venues[i].x, venues[i].y);
+            first = 0;
+        }
+    }
+    
+    fprintf(file, "]}");
+    fclose(file);
+}
+
+// Load favorites from JSON file
+void load_favorites_from_file() {
+    FILE *file = fopen("favorites.json", "r");
+    if (!file) return;
+    
+    // Simple parser - read file and extract IDs
+    char buffer[4096];
+    int bytes_read = fread(buffer, 1, sizeof(buffer) - 1, file);
+    fclose(file);
+    
+    if (bytes_read > 0) {
+        buffer[bytes_read] = '\0';
+        
+        // Find and parse IDs from JSON
+        char *pos = buffer;
+        int id;
+        while ((pos = strstr(pos, "\"id\": ")) != NULL) {
+            pos += 6;
+            if (sscanf(pos, "%d", &id) == 1) {
+                for (int i = 0; i < venue_count; i++) {
+                    if (venues[i].id == id) {
+                        venues[i].is_favorite = 1;
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 

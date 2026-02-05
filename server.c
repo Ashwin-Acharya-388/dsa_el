@@ -178,19 +178,143 @@ void handle_request(int client_socket, const char *request) {
         send_json_response(client_socket, json);
     }
     else if (strstr(request, "GET /api/venues")) {
-        // Return all venues
+        // Return all venues with favorite status
         char json[BUFFER_SIZE * 4]; // Larger buffer for all venues
         strcpy(json, "{\"venues\": [");
         
         for (int i = 0; i < venue_count; i++) {
             char venue_json[256];
             snprintf(venue_json, sizeof(venue_json),
-                     "{\"id\": %d, \"name\": \"%s\", \"type\": \"%s\", \"x\": %.1f, \"y\": %.1f}%s",
+                     "{\"id\": %d, \"name\": \"%s\", \"type\": \"%s\", \"x\": %.4f, \"y\": %.4f, \"is_favorite\": %d}%s",
                      venues[i].id, venues[i].name, venues[i].type, venues[i].x, venues[i].y,
+                     venues[i].is_favorite,
                      (i < venue_count - 1) ? ", " : "");
             strcat(json, venue_json);
         }
         strcat(json, "]}");
+        
+        send_json_response(client_socket, json);
+    }
+    else if (strstr(request, "GET /api/favorites")) {
+        // Return all favorite venues
+        char json[BUFFER_SIZE * 4];
+        Venue favorites[MAX_VENUES];
+        int fav_count = 0;
+        
+        get_favorites_list(favorites, &fav_count);
+        
+        strcpy(json, "{\"success\": true, \"favorites\": [");
+        
+        for (int i = 0; i < fav_count; i++) {
+            char fav_json[256];
+            snprintf(fav_json, sizeof(fav_json),
+                     "{\"id\": %d, \"name\": \"%s\", \"type\": \"%s\", \"x\": %.4f, \"y\": %.4f}%s",
+                     favorites[i].id, favorites[i].name, favorites[i].type, 
+                     favorites[i].x, favorites[i].y,
+                     (i < fav_count - 1) ? ", " : "");
+            strcat(json, fav_json);
+        }
+        strcat(json, "]}");
+        
+        send_json_response(client_socket, json);
+    }
+    else if (strstr(request, "GET /api/toggle-favorite")) {
+        // Parse venue ID from query parameter
+        int venue_id = 0;
+        const char *query_start = strchr(request, '?');
+        if (query_start) {
+            char query[256];
+            const char *query_end = strchr(query_start, ' ');
+            if (!query_end) query_end = query_start + strlen(query_start);
+            
+            int len = query_end - (query_start + 1);
+            if (len > 255) len = 255;
+            strncpy(query, query_start + 1, len);
+            query[len] = '\0';
+            
+            // Parse id parameter
+            char *token = strtok(query, "&");
+            while (token != NULL) {
+                if (strncmp(token, "id=", 3) == 0) {
+                    venue_id = atoi(token + 3);
+                }
+                token = strtok(NULL, "&");
+            }
+        }
+        
+        if (venue_id > 0) {
+            toggle_favorite(venue_id);
+            
+            // Find the toggled venue to return its new status
+            int is_fav = 0;
+            for (int i = 0; i < venue_count; i++) {
+                if (venues[i].id == venue_id) {
+                    is_fav = venues[i].is_favorite;
+                    break;
+                }
+            }
+            
+            char json[256];
+            snprintf(json, sizeof(json),
+                     "{\"success\": true, \"venue_id\": %d, \"is_favorite\": %d}",
+                     venue_id, is_fav);
+            send_json_response(client_socket, json);
+        } else {
+            char json[] = "{\"success\": false, \"message\": \"Invalid venue ID\"}";
+            send_json_response(client_socket, json);
+        }
+    }
+    else if (strstr(request, "GET /api/nearby-favorites")) {
+        // Parse query parameters: x, y, radius
+        float x = 0, y = 0, radius = 1.0;
+        const char *query_start = strchr(request, '?');
+        if (query_start) {
+            char query[1024];
+            const char *query_end = strchr(query_start, ' ');
+            if (!query_end) query_end = query_start + strlen(query_start);
+            
+            int len = query_end - (query_start + 1);
+            if (len > 1023) len = 1023;
+            strncpy(query, query_start + 1, len);
+            query[len] = '\0';
+            
+            char *token = strtok(query, "&");
+            while (token != NULL) {
+                if (strncmp(token, "x=", 2) == 0) {
+                    x = atof(token + 2);
+                } else if (strncmp(token, "y=", 2) == 0) {
+                    y = atof(token + 2);
+                } else if (strncmp(token, "radius=", 7) == 0) {
+                    radius = atof(token + 7);
+                }
+                token = strtok(NULL, "&");
+            }
+        }
+        
+        Venue nearby[MAX_VENUES];
+        int nearby_count = 0;
+        get_nearby_favorites(x, y, radius, nearby, &nearby_count);
+        
+        char json[BUFFER_SIZE * 4];
+        strcpy(json, "{\"success\": true, \"nearby_favorites\": [");
+        
+        for (int i = 0; i < nearby_count; i++) {
+            float dist = calculate_distance(x, y, nearby[i].x, nearby[i].y);
+            char fav_json[512];
+            snprintf(fav_json, sizeof(fav_json),
+                     "{\"id\": %d, \"name\": \"%s\", \"type\": \"%s\", \"x\": %.4f, \"y\": %.4f, \"distance\": %.2f}%s",
+                     nearby[i].id, nearby[i].name, nearby[i].type, 
+                     nearby[i].x, nearby[i].y, dist,
+                     (i < nearby_count - 1) ? ", " : "");
+            strcat(json, fav_json);
+        }
+        strcat(json, "], ");
+        
+        char info[256];
+        snprintf(info, sizeof(info), 
+                 "\"query\": {\"x\": %.4f, \"y\": %.4f, \"radius\": %.2f}, \"count\": %d}",
+                 x, y, radius, nearby_count);
+        strcat(json, info);
         
         send_json_response(client_socket, json);
     }
