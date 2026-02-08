@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple POST Test</title>
+</head>
+<body>
+    <h1>Test POST /api/venue</h1>
+    <button onclick="testPost()">Add Test Venue</button>
+    <pre id="result"></pre>
+    
+    <script>
+        async function testPost() {
+            const result = document.getElementById('result');
+            result.textContent = 'Sending...';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/venue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test Venue POST',
+                        type: 'park',
+                        x: 12.8618,
+                        y: 77.4936
+                    })
+                });
+                
+                const data = await response.json();
+                result.textContent = 'Response:\n' + JSON.stringify(data, null, 2);
+            } catch (e) {
+                result.textContent = 'Error: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

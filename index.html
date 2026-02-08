@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entertainment Finder - Discover Nearby Venues</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 80px 60px;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+            margin: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            color: #555;
+            margin-bottom: 60px;
+            font-weight: 400;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin: 60px 0;
+            text-align: left;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            font-size: 1rem;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            margin-top: 40px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .cta-button:active {
+            transform: translateY(-1px);
+        }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="badge">DSA Mini Project</span>
+        <h1>Entertainment Finder</h1>
+        <p class="tagline">Experience the power of K-D Trees with our lightning-fast spatial search engine for finding the best venues near you.</p>
+
+        <a href="map.html" class="cta-button">Start Exploring ➔</a>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>High-Speed Search</h3>
+                <p>Implemented using optimized K-D Trees to perform Nearest Neighbor searches in O(log n) time complexity.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🗺️</div>
+                <h3>Interactive Mapping</h3>
+                <p>Explore Bangalore using our Leaflet-integrated map with dynamic venue discovery and detailed information.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🚗</div>
+                <h3>Smart Routing</h3>
+                <p>Get real-time driving directions and distance estimates powered by the OSRM routing engine.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Data Structures & Applications (IS233AI)</strong></p>
+            <p>Department of Information Science & Engineering</p>
+            <p>Built with C Backend • Leaflet.js • OSRM API</p>
+        </footer>
+    </div>
+</body>
+</html>
